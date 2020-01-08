@@ -1,7 +1,9 @@
 #pragma once
 
+//
 // Classe qui définit un vecteur à 3 composantes
 // Avec des opérations (+,*,/,normalisation,norme2,...)
+// 
 
 class Vector
 {
