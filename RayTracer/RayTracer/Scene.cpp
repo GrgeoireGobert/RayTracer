@@ -1,5 +1,5 @@
 #include "Scene.h"
-
+#include <iostream>
 
 // Constructeur par défaut
 Scene::Scene()
@@ -114,25 +114,92 @@ Vector Scene::getColorMiroir(Ray& ray, intersection_details infos_intersection, 
 		Ray new_ray(infos_intersection.inter_Pos+epsilon* infos_intersection.inter_Norm, dir_reflexion);
 		// Lancer du rayon reflechi
 		intersection_details infos = this->intersection(new_ray);
-		// Pas d'intersection
-		if (infos.intersection == false)
+		// Renvoi de la couleur
+		return this->getColor(new_ray, infos, 1.0, n - 1, 5);
+	}
+}
+
+/////////////////////////////
+// Determine la couleur dans le cas d'un materiau transparent
+// ray est le rayon incident
+// infos_intersection est la structure décrivant l'intersection
+// indice_milieu_incident donne l'indice du milieu incident
+// n est la variable de fin de récursion
+/////////////////////////////
+Vector Scene::getColorTransparent(Ray& ray, intersection_details infos_intersection, double indice_milieu_incident, int n)
+{
+	// Fin de la recursion
+	if (n <= 0)
+	{
+		return Vector(0.0, 0.0, 0.0);
+	}
+	else
+	{
+		double indice_milieu_objet = infos_intersection.indice_sphere;
+		double disc = 1 - pow(indice_milieu_incident / indice_milieu_objet, 2) * (1 - pow(ray.direction.dot(infos_intersection.inter_Norm), 2));
+		// Cas de la reflexion totale
+		if (disc < 0)
 		{
-			return Vector(0.0, 0.0, 0.0);
+			return this->getColorMiroir(ray, infos_intersection, n);
 		}
-		// Sinon, il y a une intersection
+		// Cas de la refraction
 		else
 		{
-			// Materiau non miroir
-			if (infos.miroir == false)
+			//Si on rentre dans l'objet (air->objet)
+			if (ray.direction.dot(infos_intersection.inter_Norm) < 0)
 			{
-				// On determine la couleur de l'objet
-				return this->getColorLambert(infos);
+				double epsilon = 0.001;
+				Vector refr_dir = (indice_milieu_incident / indice_milieu_objet) * ray.direction - ((indice_milieu_incident / indice_milieu_objet) * ray.direction.dot(infos_intersection.inter_Norm) + sqrt(disc)) * infos_intersection.inter_Norm;
+				Ray refr_ray(infos_intersection.inter_Pos - epsilon * infos_intersection.inter_Norm, refr_dir);
+				intersection_details refr_ray_infos = this->intersection(refr_ray);
+
+				return this->getColorTransparent(refr_ray, refr_ray_infos, infos_intersection.indice_sphere, n - 1);
 			}
-			// Materiau miroir
-			else
+			//Si on quitte l'objet (objet->air)
 			{
-				return getColorMiroir(new_ray,infos, n - 1);
+				//Inverser la normale pour les calculs
+				infos_intersection.inter_Norm = (-1.0)*infos_intersection.inter_Norm;
+				// Calcul
+				double epsilon = 0.001;
+				Vector refr_dir = (indice_milieu_objet/indice_milieu_incident) * ray.direction - ((indice_milieu_objet / indice_milieu_incident) * ray.direction.dot(infos_intersection.inter_Norm) + sqrt(disc)) * infos_intersection.inter_Norm;
+				Ray refr_ray(infos_intersection.inter_Pos - epsilon * infos_intersection.inter_Norm, refr_dir);
+				intersection_details refr_ray_infos = this->intersection(refr_ray);
+				// Renvoi de la couleur
+				return this->getColor(refr_ray, refr_ray_infos, 1.0, 5, 5);
 			}
+			
+		}
+	}
+}
+
+/////////////////////////////
+// Fait la distinction de cas entre les effets physiques
+// ray est le rayon incident
+// infos_intersection est la structure décrivant l'intersection
+// indice_milieu_incident donne l'indice du milieu incident
+// n_miroir est la variable de fin de récursion pour l'effet miroir
+// n_miroir est la variable de fin de récursion pour l'effet transparent
+/////////////////////////////
+Vector Scene::getColor(Ray& ray, intersection_details infos_intersection, double indice_milieu_incident, int n_miroir, int n_transp)
+{
+	if (infos_intersection.intersection == false)
+	{
+		return Vector(0.0, 0.0, 0.0);
+	}
+	//  Intersection
+	else
+	{
+		if (infos_intersection.miroir == true)
+		{
+			return this->getColorMiroir(ray, infos_intersection, n_miroir);
+		}
+		else if (infos_intersection.transparent == true)
+		{
+			return this->getColorTransparent(ray, infos_intersection, indice_milieu_incident, n_transp);
+		}
+		else
+		{
+			return this->getColorLambert(infos_intersection);
 		}
 	}
 }

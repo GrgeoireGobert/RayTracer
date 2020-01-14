@@ -11,7 +11,9 @@ struct  intersection_details
 	Vector inter_Norm; // Normale au point d'intersection
 	Vector inter_Color; // Couleur de l'objet
 	double albedo = 1.0; // Albedo
-	bool miroir = false;
+	bool miroir = false; // Miroir
+	bool transparent = false; // Transparent
+	double indice_sphere = 1.0; // SI transparent, indice du milieu
 };
 
 //
@@ -27,7 +29,9 @@ public:
 	Vector couleur;
 	double albedo;
 	bool miroir;
+	bool transparent;
+	double indice_sphere;
 
-	Sphere(const Vector& Centre, const double radius, const Vector& Color, const double albed,bool miror);
+	Sphere(const Vector& Centre, const double radius, const Vector& Color, const double albed,bool miror, bool transp,double ind_sphere);
 	intersection_details intersect(Ray& rayon);
 };

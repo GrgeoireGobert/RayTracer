@@ -25,16 +25,16 @@ int main()
 	Scene scene;
 	Vector camera_centre(0.0, 0.0, 55.0); // Centre de la caméra
 	//// Creation des spheres
-	Sphere sphere1(Vector(0.0, 0.0, 0.0), 10.0, Vector(105.0, 105.0, 0.0), 1.0,true); // Objet sphere (centre,rayon,couleur,albedo,miroir)
-	Sphere sphere2(Vector(0.0, 0.0, -1000.0), 940.0, Vector(0.0, 255.0, 0.0), 1.0, false); // Objet sphere (centre,rayon,couleur,albedo,miroir)
-	Sphere sphere3(Vector(0.0, 1000.0, 0.0), 940.0, Vector(255.0, 0.0, 0.0), 1.0, false); // Objet sphere (centre,rayon,couleur,albedo,miroir)
+	Sphere sphere1(Vector(0.0, 0.0, 0.0), 15.0, Vector(105.0, 105.0, 0.0), 1.0,true,false,1.33); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere2(Vector(0.0, 0.0, -1000.0), 940.0, Vector(0.0, 255.0, 0.0), 1.0, false,false,1.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere3(Vector(0.0, 1000.0, 0.0), 940.0, Vector(255.0, 0.0, 0.0), 1.0, false, false, 1.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
 	////
-	Sphere sphere4(Vector(10.0, -15.0, 10.0), 4.0, Vector(0.0, 255.0, 255.0), 1.0, false); // Objet sphere (centre,rayon,couleur,albedo,miroir)
+	Sphere sphere4(Vector(10.0, 15.0, 10.0), 4.0, Vector(0.0, 255.0, 255.0), 1.0, false, true, 2.33); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
 	////
-	Sphere sphere5(Vector(0.0, -1000.0, 0.0), 940.0, Vector(0.0, 0, 255.0), 1.0, false); // Objet sphere (centre,rayon,couleur,albedo,miroir)
-	Sphere sphere6(Vector(0.0, 0.0, 1000.0), 940.0, Vector(255.0, 255.0, 0.0), 1.0, false); // Objet sphere (centre,rayon,couleur,albedo,miroir)
-	Sphere sphere7(Vector(1000.0, 0.0, 0.0), 940.0, Vector(255.0, 255.0, 255.0), 1.0, false); // Objet sphere (centre,rayon,couleur,albedo,miroir)
-	Sphere sphere8(Vector(-1000.0, 0.0, 0.0), 940.0, Vector(255.0, 255.0, 255.0), 1.0, false); // Objet sphere (centre,rayon,couleur,albedo,miroir)
+	Sphere sphere5(Vector(0.0, -1000.0, 0.0), 940.0, Vector(0.0, 0, 255.0), 1.0, false, false, 1.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere6(Vector(0.0, 0.0, 1000.0), 940.0, Vector(255.0, 255.0, 0.0), 1.0, false, false, 1.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere7(Vector(1000.0, 0.0, 0.0), 940.0, Vector(255.0, 0.0, 255.0), 1.0, false, false, 1.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere8(Vector(-1000.0, 0.0, 0.0), 940.0, Vector(255.0, 255.0, 255.0), 1.0, false, false, 1.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
 	//// Ajout des spheres a la scene
 	scene.add_sphere(&sphere1); 
 	scene.add_sphere(&sphere2);
@@ -75,16 +75,7 @@ int main()
 			{
 				// Variable pour stocker la couleur du pixel
 				Vector RGB;
-				// Cas du matériau miroir
-				if (infos_intersection.miroir == true)
-				{
-					RGB = scene.getColorMiroir(ray_ij, infos_intersection,5);
-				}
-				// Sinon, c'est Lambertien
-				else
-				{
-					RGB = scene.getColorLambert(infos_intersection);
-				}
+				RGB = scene.getColor(ray_ij, infos_intersection, 1.0, 5, 5);
 				
 				// Correction Gamma
 				RGB.x = pow(RGB.x, 0.45);

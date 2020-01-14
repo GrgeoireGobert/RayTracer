@@ -25,6 +25,8 @@ public:
 	void add_light(light_source* light);
 	intersection_details intersection(Ray& ray);
 	Vector getColorMiroir(Ray& ray, intersection_details infos_intersection, int n);
+	Vector getColorTransparent(Ray& ray, intersection_details infos_intersection, double indice_milieu_incident, int n);
 	Vector getColorLambert(intersection_details infos_intersection);
+	Vector getColor(Ray& ray, intersection_details infos_intersection, double indice_milieu_incident,int n_miroir, int n_transp);
 };
 
