@@ -20,7 +20,10 @@ Vector::Vector(double X, double Y, double Z)
 	y = Y;
 	z = Z;
 }
+
+/////////////////////////////
 // Norme au carré
+/////////////////////////////
 double Vector::norme2()
 {
 	double norme2 = 0.0;
@@ -30,7 +33,10 @@ double Vector::norme2()
 
 	return norme2;
 }
+
+/////////////////////////////
 // Norme
+/////////////////////////////
 double Vector::norme()
 {
 	double norme = 0.0;
@@ -40,7 +46,10 @@ double Vector::norme()
 
 	return sqrt(norme);
 }
+
+/////////////////////////////
 // Normalisation
+/////////////////////////////
 void Vector::normalize()
 {
 	double norme = this->norme();
@@ -49,7 +58,10 @@ void Vector::normalize()
 	y = y / norme;
 	z = z / norme;
 }
+
+/////////////////////////////
 // Produit scalaire
+/////////////////////////////
 double Vector::dot(const Vector& B)
 {
 	double result = 0.0;
@@ -59,7 +71,10 @@ double Vector::dot(const Vector& B)
 
 	return result;
 }
+
+/////////////////////////////
 // Produit vectoriel
+/////////////////////////////
 Vector Vector::prod_vect(const Vector& B)
 {
 	Vector Result(0.0, 0.0, 0.0);
@@ -75,31 +90,44 @@ Vector Vector::prod_vect(const Vector& B)
 /// Les opérateurs externes
 ///
 
+/////////////////////////////
 // Addition
+/////////////////////////////
 Vector operator+(const Vector& A, const Vector& B)
 {
 	Vector Result(A.x+B.x, A.y+B.y, A.z+B.z);
 	return Result;
 }
+
+/////////////////////////////
 // Soustraction
+/////////////////////////////
 Vector operator-(const Vector& A, const Vector& B)
 {
 	Vector Result(A.x - B.x, A.y - B.y, A.z - B.z);
 	return Result;
 }
+
+/////////////////////////////
 // Multiplication
+/////////////////////////////
 Vector operator*(const Vector& A, const double k)
 {
 	Vector Result(k * A.x, k * A.y, k * A.z);
 	return Result;
 }
+
+/////////////////////////////
 // Multiplication
+/////////////////////////////
 Vector operator*(const double k,const Vector& A)
 {
 	Vector Result(k * A.x, k * A.y, k * A.z);
 	return Result;
 }
+/////////////////////////////
 // Division
+/////////////////////////////
 Vector operator/(const Vector& A, const double k)
 {
 	assert(k != 0.0);

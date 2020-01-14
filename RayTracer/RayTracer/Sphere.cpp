@@ -6,14 +6,19 @@
 //
 
 // Constructeur
-Sphere::Sphere(const Vector& Centre, const double radius, const Vector& Color, const double albed)
+Sphere::Sphere(const Vector& Centre, const double radius, const Vector& Color, const double albed, bool miror)
 {
 	centre = Centre;
 	rayon = radius;
 	couleur = Color;
 	albedo = albed;
+	miroir = miror;
 }
-// Booleen qui indique si il y a une intersection
+
+/////////////////////////////
+// Structures contenant les infos sur une
+// possible intersection
+/////////////////////////////
 intersection_details Sphere::intersect(Ray& ray)
 {
 	double a = ray.direction.norme();
@@ -48,8 +53,9 @@ intersection_details Sphere::intersect(Ray& ray)
 		infos.inter_Pos = ray.origine + t_proche * ray.direction; // Position
 		infos.inter_Color = couleur; // Couleur
 		infos.inter_Norm = infos.inter_Pos-centre; // Normale
-		infos.inter_Pos.normalize();
+		infos.inter_Norm.normalize();
 		infos.albedo = albedo; // Albedo
+		infos.miroir = miroir;
 
 		return infos;
 	}

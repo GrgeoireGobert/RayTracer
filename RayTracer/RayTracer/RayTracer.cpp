@@ -25,19 +25,35 @@ int main()
 	Scene scene;
 	Vector camera_centre(0.0, 0.0, 55.0); // Centre de la caméra
 	//// Creation des spheres
-	Sphere sphere1(Vector(0.0, 0.0, 0.0), 10.0, Vector(255.0, 100.0, 50.0), 1.0); // Objet sphere (centre,rayon,couleur,albedo
-	Sphere sphere2(Vector(20.0, 0.0, 0.0), 3.0, Vector(0.0, 200.0, 50.0), 1.0); // Objet sphere (centre,rayon,couleur,albedo
-	Sphere sphere3(Vector(-20.0, 0.0, 0.0), 5.0, Vector(0.0, 0.0, 150.0), 1.0); // Objet sphere (centre,rayon,couleur,albedo
+	Sphere sphere1(Vector(0.0, 0.0, 0.0), 10.0, Vector(105.0, 105.0, 0.0), 1.0,true); // Objet sphere (centre,rayon,couleur,albedo,miroir)
+	Sphere sphere2(Vector(0.0, 0.0, -1000.0), 940.0, Vector(0.0, 255.0, 0.0), 1.0, false); // Objet sphere (centre,rayon,couleur,albedo,miroir)
+	Sphere sphere3(Vector(0.0, 1000.0, 0.0), 940.0, Vector(255.0, 0.0, 0.0), 1.0, false); // Objet sphere (centre,rayon,couleur,albedo,miroir)
+	////
+	Sphere sphere4(Vector(10.0, -15.0, 10.0), 4.0, Vector(0.0, 255.0, 255.0), 1.0, false); // Objet sphere (centre,rayon,couleur,albedo,miroir)
+	////
+	Sphere sphere5(Vector(0.0, -1000.0, 0.0), 940.0, Vector(0.0, 0, 255.0), 1.0, false); // Objet sphere (centre,rayon,couleur,albedo,miroir)
+	Sphere sphere6(Vector(0.0, 0.0, 1000.0), 940.0, Vector(255.0, 255.0, 0.0), 1.0, false); // Objet sphere (centre,rayon,couleur,albedo,miroir)
+	Sphere sphere7(Vector(1000.0, 0.0, 0.0), 940.0, Vector(255.0, 255.0, 255.0), 1.0, false); // Objet sphere (centre,rayon,couleur,albedo,miroir)
+	Sphere sphere8(Vector(-1000.0, 0.0, 0.0), 940.0, Vector(255.0, 255.0, 255.0), 1.0, false); // Objet sphere (centre,rayon,couleur,albedo,miroir)
 	//// Ajout des spheres a la scene
 	scene.add_sphere(&sphere1); 
 	scene.add_sphere(&sphere2);
 	scene.add_sphere(&sphere3);
+	scene.add_sphere(&sphere4);
+	scene.add_sphere(&sphere5);
+	scene.add_sphere(&sphere6);
+	scene.add_sphere(&sphere7);
+	scene.add_sphere(&sphere8);
 	//// Caracs camera
 	double fov = 60; // Angle de vue en degres
-	double d = W / (2 * tan(fov * 3.1415 / 360.0)); // distance centre_camera -> plan_image
+	double d = H / (2 * tan(fov * 3.1415 / 360.0)); // distance centre_camera -> plan_image
 	//// Caracs source
-	Vector light_Pos(-10.0, 20.0, 40.0); // Position source lumineuse
-	double light_power = 1000000.0; // Intensité de la source lumineuse
+	Vector light_Position(-10.0,0.0, 40.0); // Position source lumineuse
+	double light_Power = 2000000.0; // Intensité de la source lumineuse
+	light_source main_light;
+	main_light.light_Pos = light_Position;
+	main_light.intensite = light_Power;
+	scene.add_light(&main_light);
 
 
 	//Création de l'image sous forme d'un vecteur
@@ -46,8 +62,9 @@ int main()
 		for (int j = 0; j < W; j++) {
 
 			//Calcul du rayon
-			Vector X_ij(j - W / 2.0, -i + H / 2.0, -d);
-			Vector U = X_ij - camera_centre;
+			Vector X_ij(-i + W / 2.0 , -j + H / 2.0 ,-d);
+			//Vector U = X_ij - camera_centre;
+			Vector U = X_ij;
 			U.normalize();
 			Ray ray_ij(camera_centre, U);
 
@@ -56,15 +73,19 @@ int main()
 			// Si il y a une intersection
 			if (infos_intersection.intersection)
 			{
-				//Calcul de la couleur pour le modèle Lambertien (diffus)
-				Vector to_Light = light_Pos - infos_intersection.inter_Pos;
-				to_Light.normalize();
-				double cos_theta = infos_intersection.inter_Norm.dot(to_Light);
-				if (cos_theta < 0.0) { cos_theta = 0.0; }
-				double facteur = light_power * infos_intersection.albedo *cos_theta / 3.1415 / ((light_Pos - infos_intersection.inter_Pos).norme2());
-				Vector RGB = infos_intersection.inter_Color;
-				RGB = facteur * RGB;
-
+				// Variable pour stocker la couleur du pixel
+				Vector RGB;
+				// Cas du matériau miroir
+				if (infos_intersection.miroir == true)
+				{
+					RGB = scene.getColorMiroir(ray_ij, infos_intersection,5);
+				}
+				// Sinon, c'est Lambertien
+				else
+				{
+					RGB = scene.getColorLambert(infos_intersection);
+				}
+				
 				// Correction Gamma
 				RGB.x = pow(RGB.x, 0.45);
 				RGB.y = pow(RGB.y, 0.45);
@@ -79,9 +100,8 @@ int main()
 				image[(i * W + j) * 3 + 0] = (int)RGB.x;
 				image[(i * W + j) * 3 + 1] = (int)RGB.y;
 				image[(i * W + j) * 3 + 2] = (int)RGB.z;
-
 			}
-			// Sinon
+			// Sinon, pas d'intersection
 			else
 			{
 				image[(i * W + j) * 3 + 0] = 0;

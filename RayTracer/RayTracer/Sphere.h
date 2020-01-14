@@ -11,6 +11,7 @@ struct  intersection_details
 	Vector inter_Norm; // Normale au point d'intersection
 	Vector inter_Color; // Couleur de l'objet
 	double albedo = 1.0; // Albedo
+	bool miroir = false;
 };
 
 //
@@ -25,7 +26,8 @@ public:
 	double rayon;
 	Vector couleur;
 	double albedo;
+	bool miroir;
 
-	Sphere(const Vector& Centre, const double radius, const Vector& Color, const double albed);
+	Sphere(const Vector& Centre, const double radius, const Vector& Color, const double albed,bool miror);
 	intersection_details intersect(Ray& rayon);
 };

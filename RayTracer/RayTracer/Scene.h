@@ -24,5 +24,7 @@ public:
 	void add_sphere(Sphere* sphere);
 	void add_light(light_source* light);
 	intersection_details intersection(Ray& ray);
+	Vector getColorMiroir(Ray& ray, intersection_details infos_intersection, int n);
+	Vector getColorLambert(intersection_details infos_intersection);
 };
 
