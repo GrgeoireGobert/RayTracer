@@ -6,7 +6,7 @@
 //
 
 // Constructeur
-Sphere::Sphere(const Vector& Centre, const double radius, const Vector& Color, const double albed, bool miror, bool transp, double ind_sphere)
+Sphere::Sphere(const Vector& Centre, const double radius, const Vector& Color, const double albed, bool miror, bool transp, double ind_sphere, double intensity)
 {
 	centre = Centre;
 	rayon = radius;
@@ -15,6 +15,7 @@ Sphere::Sphere(const Vector& Centre, const double radius, const Vector& Color, c
 	miroir = miror;
 	transparent = transp;
 	indice_sphere = ind_sphere;
+	intensite = intensity;
 }
 
 /////////////////////////////
@@ -60,6 +61,8 @@ intersection_details Sphere::intersect(Ray& ray)
 		infos.miroir = miroir;
 		infos.transparent = transparent;
 		infos.indice_sphere = indice_sphere;
+		infos.intensite = intensite;
+		infos.rayon = rayon;
 
 		return infos;
 	}

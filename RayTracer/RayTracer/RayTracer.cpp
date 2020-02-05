@@ -29,17 +29,17 @@ int main()
 	Scene scene;
 	Vector camera_centre(0.0, 0.0, 55.0); // Centre de la caméra
 	//// Creation des spheres
-	Sphere sphere1(Vector(0.0, 0.0, 0.0), 15.0, Vector(255.0, 255.0, 255.0), 1.0, false, false, 1.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
-	Sphere sphere2(Vector(0.0, 0.0, -1000.0), 940.0, Vector(0.0, 255.0, 0.0), 1.0, false, false, 1.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
-	Sphere sphere3(Vector(0.0, 1000.0, 0.0), 940.0, Vector(255.0, 0.0, 0.0), 1.0, false, false, 1.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere1(Vector(0.0, 0.0, 0.0), 15.0, Vector(255.0, 255.0, 255.0), 1.0, false, false, 1.0,0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere2(Vector(0.0, 0.0, -1000.0), 940.0, Vector(0.0, 255.0, 0.0), 1.0, false, false, 1.0, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere3(Vector(0.0, 1000.0, 0.0), 940.0, Vector(255.0, 0.0, 0.0), 1.0, false, false, 1.0, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
 	////
-	Sphere sphere4(Vector(10.0, 15.0, 10.0), 4.0, Vector(0.0, 0.0, 0.0), 1.0, false, true, 1.33); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
-	Sphere sphere9(Vector(-10.0, -15.0, 10.0), 4.0, Vector(0.0, 0.0, 0.0), 1.0, true, false, 1.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere4(Vector(10.0, 15.0, 10.0), 4.0, Vector(0.0, 0.0, 0.0), 1.0, false, true, 2.33, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere9(Vector(-10.0, -15.0, 20.0), 4.0, Vector(0.0, 0.0, 0.0), 1.0, true, false, 1.0, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
 	////
-	Sphere sphere5(Vector(0.0, -1000.0, 0.0), 940.0, Vector(0.0, 0, 255.0), 1.0, false, false, 1.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
-	Sphere sphere6(Vector(0.0, 0.0, 1000.0), 940.0, Vector(255.0, 255.0, 0.0), 1.0, false, false, 1.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
-	Sphere sphere7(Vector(1000.0, 0.0, 0.0), 940.0, Vector(255.0, 0.0, 255.0), 1.0, false, false, 1.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
-	Sphere sphere8(Vector(-1000.0, 0.0, 0.0), 940.0, Vector(255.0, 255.0, 255.0), 1.0, false, false, 1.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere5(Vector(0.0, -1000.0, 0.0), 940.0, Vector(0.0, 0, 255.0), 1.0, false, false, 1.0, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere6(Vector(0.0, 0.0, 1000.0), 940.0, Vector(255.0, 255.0, 0.0), 1.0, false, false, 1.0, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere7(Vector(1000.0, 0.0, 0.0), 940.0, Vector(255.0, 0.0, 255.0), 1.0, false, false, 1.0, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere8(Vector(-1000.0, 0.0, 0.0), 940.0, Vector(255.0, 255.0, 255.0), 1.0, false, false, 1.0, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
 	//// Ajout des spheres a la scene
 	scene.add_sphere(&sphere1);
 	scene.add_sphere(&sphere2);
@@ -55,11 +55,15 @@ int main()
 	double d = H / (2 * tan(fov * 3.1415 / 360.0)); // distance centre_camera -> plan_image
 	//// Caracs source
 	Vector light_Position(25.0, -25.0, 40.0); // Position source lumineuse
-	double light_Power = 1000000.0; // Intensité de la source lumineuse
+	double light_Power = 3000000.0; // Intensité de la source lumineuse
 	light_source main_light;
 	main_light.light_Pos = light_Position;
 	main_light.intensite = light_Power;
+	double source_radius = 5.0;
 	scene.add_light(&main_light);
+
+	Sphere sphere_source(light_Position, source_radius, Vector(255.0, 255.0, 255.0), 1.0, false, true, 1.0, light_Power);
+	scene.add_sphere(&sphere_source);
 
 
 	//Création de l'image sous forme d'un vecteur
@@ -103,10 +107,32 @@ int main()
 				{
 					// Variable pour stocker la couleur du pixel
 					//Facteur indirect a adapter en focntion du nombre de rebond a cause de la multiplication des couleurs
-					RGB = RGB + 0.5 * scene.getDirect(ray_ij, infos_intersection, 1.0, 5, 5) + 0.5 * scene.getIndirect(infos_intersection, 1)*0.3;
+					RGB = RGB + 0.5 * scene.getDirect(ray_ij, infos_intersection, 1.0, 5, 5) + 0.5 * scene.getIndirect(infos_intersection, 1);
 				}
+
+				//Second rayon pour la profondeur de champ
+				double dist_focale = 55.0;
+				double ouverture = 1.0;
+				double b1 = (double)rand() / (double)RAND_MAX;
+				double b2 = (double)rand() / (double)RAND_MAX;
+				double dx = sqrt(-2 * log(b1)) * cos(2 * pi_val * b2) * ouverture;
+				double dy = sqrt(-2 * log(b1)) * sin(2 * pi_val * b2) * ouverture;
+				Vector new_camera_centre = camera_centre + Vector(dx, dy, 0);
+				double lambda = dist_focale / (U.dot(Vector(0.0,0.0,-1.0)));
+				Vector A = (camera_centre + lambda * U - new_camera_centre);
+				Vector new_U = A;
+				new_U.normalize();
+				Ray new_ray_ij(new_camera_centre, new_U);
+				intersection_details new_infos_intersection = scene.intersection(new_ray_ij);
+				if (new_infos_intersection.intersection)
+				{
+					// Variable pour stocker la couleur du pixel
+					//Facteur indirect a adapter en focntion du nombre de rebond a cause de la multiplication des couleurs
+					RGB = RGB + 0.5 * scene.getDirect(new_ray_ij, new_infos_intersection, 1.0, 5, 5) + 0.5 * scene.getIndirect(new_infos_intersection, 1);
+				}
+
 			}
-			RGB = (1 / (double)nb_rayons) * RGB;
+			RGB = (1 / (double)nb_rayons/2.0) * RGB;
 			// Correction Gamma
 			RGB.x = pow(RGB.x, 0.45);
 			RGB.y = pow(RGB.y, 0.45);

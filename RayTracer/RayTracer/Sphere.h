@@ -14,6 +14,8 @@ struct  intersection_details
 	bool miroir = false; // Miroir
 	bool transparent = false; // Transparent
 	double indice_sphere = 1.0; // SI transparent, indice du milieu
+	double intensite = 0.0; // Si source
+	double rayon = 0.0; // SI transparent, indice du milieu
 };
 
 //
@@ -31,7 +33,8 @@ public:
 	bool miroir;
 	bool transparent;
 	double indice_sphere;
+	double intensite;
 
-	Sphere(const Vector& Centre, const double radius, const Vector& Color, const double albed,bool miror, bool transp,double ind_sphere);
+	Sphere(const Vector& Centre, const double radius, const Vector& Color, const double albed,bool miror, bool transp,double ind_sphere, double intensity);
 	intersection_details intersect(Ray& rayon);
 };

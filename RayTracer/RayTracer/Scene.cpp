@@ -67,36 +67,91 @@ intersection_details Scene::intersection(Ray& ray)
 /////////////////////////////
 Vector Scene::getColorLambert(intersection_details infos_intersection)
 {
-	Vector light_Pos = this->liste_sources.at(0)->light_Pos;
-	double light_power = this->liste_sources.at(0)->intensite;
-	// On verifie si le point est dans l'ombre ou pas
-	Vector to_Light_unnormalized = light_Pos - infos_intersection.inter_Pos;
-	Vector to_Light = light_Pos - infos_intersection.inter_Pos;
-	to_Light.normalize();
-	double epsilon = 0.01;
-	//// Rayon pour la visibilite
-	Ray ray_ps(infos_intersection.inter_Pos + epsilon * infos_intersection.inter_Norm, to_Light);
-	intersection_details infos_eclairage = this->intersection(ray_ps);
-	
-	// On verifie, si on a une intersection, si celle-ci se situe avant ou après la lumière !
-	double dist_to_inter = (infos_eclairage.inter_Pos - infos_intersection.inter_Pos).norme2();
-	double dist_to_light = to_Light_unnormalized.norme2();
-	// Si le point est éclairé
-	if (infos_eclairage.intersection == false || (infos_eclairage.intersection == true && dist_to_light<dist_to_inter))
-	{
-		//Calcul de la couleur pour le modèle Lambertien (diffus)
-		double cos_theta = infos_intersection.inter_Norm.dot(to_Light);
-		if (cos_theta < 0.0) { cos_theta = 0.0; }
-		double facteur = light_power * infos_intersection.albedo * cos_theta / 3.1415 / ((light_Pos - infos_intersection.inter_Pos).norme2());
-		Vector RGB = infos_intersection.inter_Color;
-		RGB = facteur * RGB;
 
-		return RGB;
-	}
-	// Sinon, le point est dans l'ombre
-	else
+	//On parcourt les spheres
+	for (int i = 0; i < liste_objets.size(); i++)
 	{
-		return Vector(0.0, 0.0, 0.0);
+		//On verifie si c'est une source de lumière
+		if (liste_objets.at(i)->intensite > 0.0)
+		{
+			Sphere* source = liste_objets.at(i);
+			//On prend un point au hasard sur cette source
+			//Construction repère local
+			Vector e_z = source->centre - infos_intersection.inter_Pos;
+			e_z.normalize();
+			Vector e_x(0.0, 0.0, 0.0);
+			if (std::abs(e_z.x) <= std::abs(e_z.y) && std::abs(e_z.x) < std::abs(e_z.z))
+			{
+				e_x.x = 0.0;
+				e_x.y = (-1.0) * e_z.z;
+				e_x.z = (1.0) * e_z.y;
+			}
+			else if (std::abs(e_z.y) <= std::abs(e_z.x) && std::abs(e_z.y) < std::abs(e_z.z))
+			{
+				e_x.x = (-1.0) * e_z.z;
+				e_x.y = 0.0;
+				e_x.z = (1.0) * e_z.x;
+			}
+			else
+			{
+				e_x.x = (-1.0) * e_z.y;
+				e_x.y = (1.0) * e_z.x;
+				e_x.z = 0.0;
+			}
+			e_x.normalize();
+			Vector e_y = e_z.prod_vect(e_x);
+
+			//On génère une direction aléatoire
+			double r1 = distrib(engine);
+			double r2 = distrib(engine);
+
+			double x = cos(2 * pi * r1) * sqrt(1 - r2);
+			double y = sin(2 * pi * r1) * sqrt(1 - r2);
+			double z = sqrt(r2);
+
+			Vector dir = x * e_x + y * e_y + z * e_z;
+			dir.normalize();
+
+			//On a un point sur la surface de la source:
+			Vector pt_on_source = source->centre + source->rayon * dir;
+			
+			//On calcule sa contribution
+			double light_power = source->intensite;
+			Vector to_Light_unnormalized = pt_on_source - infos_intersection.inter_Pos;
+			Vector to_Light = pt_on_source - infos_intersection.inter_Pos;
+			to_Light.normalize();
+			double epsilon = 0.01;
+			//// Rayon pour la visibilite
+			Ray ray_ps(infos_intersection.inter_Pos + epsilon * infos_intersection.inter_Norm, to_Light);
+			intersection_details infos_eclairage = this->intersection(ray_ps);
+			// On verifie, si on a une intersection, si celle-ci se situe avant ou après la lumière !
+			double dist_to_inter = (infos_eclairage.inter_Pos - infos_intersection.inter_Pos).norme2();
+			double dist_to_light = to_Light_unnormalized.norme2();
+			// Si le point est éclairé
+			if (infos_eclairage.intersection == false || (infos_eclairage.intersection == true && infos_eclairage.intensite>0.0))
+			{
+				//Calcul de la couleur pour le modèle Lambertien (diffus)
+				double cos_theta = infos_intersection.inter_Norm.dot(to_Light);
+				if (cos_theta < 0.0) { cos_theta = 0.0; }
+				double cos_theta_prime = dir.dot((-1.0)*to_Light);
+				if (cos_theta_prime < 0.0) { cos_theta_prime = 0.0; }
+				Vector OP = (source->centre + (-1.0) * infos_intersection.inter_Pos);
+				OP.normalize();
+				double cos_alpha = dir.dot(OP);
+				double facteur = light_power * infos_intersection.albedo * cos_theta*cos_theta/pi/ ((pt_on_source - infos_intersection.inter_Pos).norme2())/cos_alpha;
+				Vector RGB = infos_intersection.inter_Color;
+				RGB = facteur * RGB;
+
+				return RGB;
+			}
+			// Sinon, le point est dans l'ombre
+			else
+			{
+				return Vector(0.0, 0.0, 0.0);
+			}
+
+		}
+
 	}
 
 }
@@ -263,16 +318,12 @@ Vector Scene::getIndirect(intersection_details infos_intersection,int n_rebonds)
 		double epsilon = 0.01;
 		Ray ray_dir(infos_intersection.inter_Pos+epsilon* infos_intersection.inter_Norm, dir);
 		intersection_details inter_dir = this->intersection(ray_dir);
-		if (inter_dir.intersection == true)
+		if (inter_dir.intersection == true && inter_dir.intensite==0.0)
 		{
-			accumulated_color = accumulated_color + getIndirect(inter_dir, n_rebonds - 1);
+			accumulated_color = accumulated_color + getIndirect(inter_dir, n_rebonds - 1)* (1 / pi);
 		}
 		//Renvoi couleur
-		Vector final_color = infos_intersection.inter_Color;
-		final_color.x = final_color.x * accumulated_color.x;
-		final_color.y = final_color.y * accumulated_color.y;
-		final_color.z = final_color.z * accumulated_color.z;
-		return (1/pi)*final_color;
+		return (1 / pi) * infos_intersection.albedo* accumulated_color;
 	}
 	//Sinon, on renvoie l'éclairage direct
 	else
