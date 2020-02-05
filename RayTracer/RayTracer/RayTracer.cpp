@@ -35,6 +35,7 @@ int main()
 	////
 	Sphere sphere4(Vector(10.0, 15.0, 10.0), 4.0, Vector(0.0, 0.0, 0.0), 1.0, false, true, 2.33, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
 	Sphere sphere9(Vector(-10.0, -15.0, 20.0), 4.0, Vector(0.0, 0.0, 0.0), 1.0, true, false, 1.0, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere10(Vector(20.0, -30.0, 0.0), 4.0, Vector(255.0, 255.0, 255.0), 1.0, false, false, 1.0, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
 	////
 	Sphere sphere5(Vector(0.0, -1000.0, 0.0), 940.0, Vector(0.0, 0, 255.0), 1.0, false, false, 1.0, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
 	Sphere sphere6(Vector(0.0, 0.0, 1000.0), 940.0, Vector(255.0, 255.0, 0.0), 1.0, false, false, 1.0, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
@@ -50,6 +51,7 @@ int main()
 	scene.add_sphere(&sphere7);
 	scene.add_sphere(&sphere8);
 	scene.add_sphere(&sphere9);
+	scene.add_sphere(&sphere10);
 	//// Caracs camera
 	double fov = 80; // Angle de vue en degres
 	double d = H / (2 * tan(fov * 3.1415 / 360.0)); // distance centre_camera -> plan_image
@@ -79,7 +81,7 @@ int main()
 
 
 			//Nombre de rayons 
-			int nb_rayons = 128;
+			int nb_rayons = 128/2; // Divisé par deux car profondeur de champ *2
 			Vector RGB(0, 0, 0);
 			for (int ray_iter = 0; ray_iter < nb_rayons; ray_iter++)
 			{
@@ -112,7 +114,7 @@ int main()
 
 				//Second rayon pour la profondeur de champ
 				double dist_focale = 55.0;
-				double ouverture = 1.0;
+				double ouverture = 0.0;// Mettre à 0.0 pour annuelr l'effet
 				double b1 = (double)rand() / (double)RAND_MAX;
 				double b2 = (double)rand() / (double)RAND_MAX;
 				double dx = sqrt(-2 * log(b1)) * cos(2 * pi_val * b2) * ouverture;
@@ -132,6 +134,7 @@ int main()
 				}
 
 			}
+			// divisé par deux car deux fois plus de rayons (a cause de la profondeur de champ)
 			RGB = (1 / (double)nb_rayons/2.0) * RGB;
 			// Correction Gamma
 			RGB.x = pow(RGB.x, 0.45);
