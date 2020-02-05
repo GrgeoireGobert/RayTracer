@@ -1,5 +1,12 @@
 #include "Scene.h"
 #include <iostream>
+#include <random>
+#include <cmath>
+
+
+std::default_random_engine engine;
+std::uniform_real_distribution<double> distrib(0, 1);
+double pi = 3.14159265359;
 
 // Constructeur par défaut
 Scene::Scene()
@@ -63,6 +70,7 @@ Vector Scene::getColorLambert(intersection_details infos_intersection)
 	Vector light_Pos = this->liste_sources.at(0)->light_Pos;
 	double light_power = this->liste_sources.at(0)->intensite;
 	// On verifie si le point est dans l'ombre ou pas
+	Vector to_Light_unnormalized = light_Pos - infos_intersection.inter_Pos;
 	Vector to_Light = light_Pos - infos_intersection.inter_Pos;
 	to_Light.normalize();
 	double epsilon = 0.01;
@@ -72,7 +80,7 @@ Vector Scene::getColorLambert(intersection_details infos_intersection)
 	
 	// On verifie, si on a une intersection, si celle-ci se situe avant ou après la lumière !
 	double dist_to_inter = (infos_eclairage.inter_Pos - infos_intersection.inter_Pos).norme2();
-	double dist_to_light = to_Light.norme2();
+	double dist_to_light = to_Light_unnormalized.norme2();
 	// Si le point est éclairé
 	if (infos_eclairage.intersection == false || (infos_eclairage.intersection == true && dist_to_light<dist_to_inter))
 	{
@@ -115,7 +123,7 @@ Vector Scene::getColorMiroir(Ray& ray, intersection_details infos_intersection, 
 		// Lancer du rayon reflechi
 		intersection_details infos = this->intersection(new_ray);
 		// Renvoi de la couleur
-		return this->getColor(new_ray, infos, 1.0, n - 1, 5);
+		return this->getDirect(new_ray, infos, 1.0, n - 1, 5);
 	}
 }
 
@@ -165,7 +173,7 @@ Vector Scene::getColorTransparent(Ray& ray, intersection_details infos_intersect
 				Ray refr_ray(infos_intersection.inter_Pos - epsilon * infos_intersection.inter_Norm, refr_dir);
 				intersection_details refr_ray_infos = this->intersection(refr_ray);
 				// Renvoi de la couleur
-				return this->getColor(refr_ray, refr_ray_infos, 1.0, 5, 5);
+				return this->getDirect(refr_ray, refr_ray_infos, 1.0, 5, 5);
 			}
 			
 		}
@@ -180,7 +188,7 @@ Vector Scene::getColorTransparent(Ray& ray, intersection_details infos_intersect
 // n_miroir est la variable de fin de récursion pour l'effet miroir
 // n_miroir est la variable de fin de récursion pour l'effet transparent
 /////////////////////////////
-Vector Scene::getColor(Ray& ray, intersection_details infos_intersection, double indice_milieu_incident, int n_miroir, int n_transp)
+Vector Scene::getDirect(Ray& ray, intersection_details infos_intersection, double indice_milieu_incident, int n_miroir, int n_transp)
 {
 	if (infos_intersection.intersection == false)
 	{
@@ -203,3 +211,75 @@ Vector Scene::getColor(Ray& ray, intersection_details infos_intersection, double
 		}
 	}
 }
+
+
+
+/////////////////////////////
+// Calcule l'eclairage indirect
+// infos_intersection est la structure décrivant l'intersection
+/////////////////////////////
+Vector Scene::getIndirect(intersection_details infos_intersection,int n_rebonds)
+{
+	//On regarde l'energie incidente indirecte
+	if (n_rebonds > 0)
+	{
+		//Construction repère local
+		Vector e_z = infos_intersection.inter_Norm;
+		Vector e_x(0.0,0.0, 0.0);
+		if (std::abs(e_z.x) <= std::abs(e_z.y) && std::abs(e_z.x) < std::abs(e_z.z))
+		{
+			e_x.x = 0.0;
+			e_x.y = (-1.0) * e_z.z;
+			e_x.z = (1.0) * e_z.y;
+		}
+		else if (std::abs(e_z.y) <= std::abs(e_z.x) && std::abs(e_z.y) < std::abs(e_z.z))
+		{
+			e_x.x = (-1.0) * e_z.z;
+			e_x.y = 0.0;
+			e_x.z = (1.0) * e_z.x;
+		}
+		else
+		{
+			e_x.x = (-1.0) * e_z.y;
+			e_x.y = (1.0) * e_z.x;
+			e_x.z = 0.0;
+		}
+		e_x.normalize();
+		Vector e_y= e_z.prod_vect(e_x);
+		//Stockage de la couleur renvoyée
+		Vector accumulated_color(0, 0, 0);
+
+		//On génère une direction aléatoire
+		double r1 = distrib(engine);
+		double r2 = distrib(engine);
+		
+		double x = cos(2 * pi * r1) * sqrt(1 - r2);
+		double y= sin(2 * pi * r1) * sqrt(1 - r2);
+		double z = sqrt(r2);
+
+		Vector dir = x * e_x + y * e_y + z * e_z;
+
+		//On regarde l'eclairage indirect dans cette direction
+		double epsilon = 0.01;
+		Ray ray_dir(infos_intersection.inter_Pos+epsilon* infos_intersection.inter_Norm, dir);
+		intersection_details inter_dir = this->intersection(ray_dir);
+		if (inter_dir.intersection == true)
+		{
+			accumulated_color = accumulated_color + getIndirect(inter_dir, n_rebonds - 1);
+		}
+		//Renvoi couleur
+		Vector final_color = infos_intersection.inter_Color;
+		final_color.x = final_color.x * accumulated_color.x;
+		final_color.y = final_color.y * accumulated_color.y;
+		final_color.z = final_color.z * accumulated_color.z;
+		return (1/pi)*final_color;
+	}
+	//Sinon, on renvoie l'éclairage direct
+	else
+	{
+		return this->getColorLambert(infos_intersection);
+	}
+	
+}
+
+

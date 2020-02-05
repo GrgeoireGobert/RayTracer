@@ -1,5 +1,8 @@
-﻿  RayTracer.cpp
+﻿  Ray.cpp
+  RayTracer.cpp
   Scene.cpp
+  Sphere.cpp
+  Vector.cpp
   Génération de code en cours...
-C:\Users\gobgr\Google Drive\Centrale\MOS - Ray Tracing\RayTracer\RayTracer\Scene.cpp(34,17): warning C4018: '<' : incompatibilité signed/unsigned
+C:\Users\gobgr\Google Drive\Centrale\MOS - Ray Tracing\RayTracer\RayTracer\Scene.cpp(41,17): warning C4018: '<' : incompatibilité signed/unsigned
   RayTracer.vcxproj -> C:\Users\gobgr\Google Drive\Centrale\MOS - Ray Tracing\RayTracer\Debug\RayTracer.exe

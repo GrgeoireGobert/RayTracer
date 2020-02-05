@@ -10,7 +10,7 @@
 struct light_source
 {
 	Vector light_Pos; // Position
-	double intensite; // Intensite
+	double intensite=0.0; // Intensite
 };
 
 class Scene
@@ -27,6 +27,7 @@ public:
 	Vector getColorMiroir(Ray& ray, intersection_details infos_intersection, int n);
 	Vector getColorTransparent(Ray& ray, intersection_details infos_intersection, double indice_milieu_incident, int n);
 	Vector getColorLambert(intersection_details infos_intersection);
-	Vector getColor(Ray& ray, intersection_details infos_intersection, double indice_milieu_incident,int n_miroir, int n_transp);
+	Vector getDirect(Ray& ray, intersection_details infos_intersection, double indice_milieu_incident, int n_miroir, int n_transp);
+	Vector getIndirect(intersection_details infos_intersection, int n_rebonds);
 };
 

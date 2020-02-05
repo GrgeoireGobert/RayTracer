@@ -1,5 +1,7 @@
-﻿  Ray.cpp
-  RayTracer.cpp
-  Sphere.cpp
-  Vector.cpp
-C:\Users\gobgr\Google Drive\Centrale\MOS - Ray Tracing\RayTracer\RayTracer\RayTracer.cpp(5,10): fatal error C1083: Impossible d'ouvrir le fichier include : 'stb_image_write.h' : No such file or directory
+﻿  RayTracer.cpp
+  Génération de code en cours
+  2 of 216 functions ( 0.9%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    1 functions had inline decision re-evaluated but remain unchanged
+  Fin de la génération du code
+  RayTracer.vcxproj -> C:\Users\gobgr\Google Drive\Centrale\MOS - Ray Tracing\RayTracer\Release\RayTracer.exe
