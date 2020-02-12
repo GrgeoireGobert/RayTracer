@@ -10,8 +10,11 @@
 #include <iostream>
 #include "Vector.h"
 #include "Sphere.h"
+#include "Triangle.h"
+#include "Object.h"
 #include "Ray.h"
 #include "Scene.h"
+#include "Geometry.h"
 #include <math.h>
 #include <cmath>
 #include <random>
@@ -41,17 +44,25 @@ int main()
 	Sphere sphere6(Vector(0.0, 0.0, 1000.0), 940.0, Vector(255.0, 255.0, 0.0), 1.0, false, false, 1.0, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
 	Sphere sphere7(Vector(1000.0, 0.0, 0.0), 940.0, Vector(255.0, 0.0, 255.0), 1.0, false, false, 1.0, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
 	Sphere sphere8(Vector(-1000.0, 0.0, 0.0), 940.0, Vector(255.0, 255.0, 255.0), 1.0, false, false, 1.0, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+
+	Triangle triangle1(Vector(-20.0, -20.0, -10.0), Vector(-20.0, 20.0, -10.0), Vector(-20.0, 0.0, 30.0), Vector(255.0, 255.0, 255.0), 1.0);
+
+	//Geometry mesh("Low-Poly-Racing-Car.obj", 0.1, Vector(0.0, 0.0, 10.0));
+	//Geometry mesh("wolf.obj", 0.1, Vector(0.0, 0.0, 10.0));
+	Geometry mesh("Arbre.obj", 15.0, Vector(-25.0, 0.0, -20.0));
 	//// Ajout des spheres a la scene
-	scene.add_sphere(&sphere1);
-	scene.add_sphere(&sphere2);
-	scene.add_sphere(&sphere3);
-	scene.add_sphere(&sphere4);
-	scene.add_sphere(&sphere5);
-	scene.add_sphere(&sphere6);
-	scene.add_sphere(&sphere7);
-	scene.add_sphere(&sphere8);
-	scene.add_sphere(&sphere9);
-	scene.add_sphere(&sphere10);
+	//scene.add_objet(&sphere1);
+	scene.add_objet(&sphere2);
+	scene.add_objet(&sphere3);
+	scene.add_objet(&sphere4);
+	scene.add_objet(&sphere5);
+	scene.add_objet(&sphere6);
+	scene.add_objet(&sphere7);
+	scene.add_objet(&sphere8);
+	scene.add_objet(&sphere9);
+	scene.add_objet(&sphere10);
+	//scene.add_objet(&triangle1);
+	scene.add_objet(&mesh);
 	//// Caracs camera
 	double fov = 80; // Angle de vue en degres
 	double d = H / (2 * tan(fov * 3.1415 / 360.0)); // distance centre_camera -> plan_image
@@ -65,7 +76,7 @@ int main()
 	scene.add_light(&main_light);
 
 	Sphere sphere_source(light_Position, source_radius, Vector(255.0, 255.0, 255.0), 1.0, false, true, 1.0, light_Power);
-	scene.add_sphere(&sphere_source);
+	scene.add_objet(&sphere_source);
 
 
 	//Création de l'image sous forme d'un vecteur
@@ -81,7 +92,7 @@ int main()
 
 
 			//Nombre de rayons 
-			int nb_rayons = 128/2; // Divisé par deux car profondeur de champ *2
+			int nb_rayons = 32/2; // Divisé par deux car profondeur de champ => *2
 			Vector RGB(0, 0, 0);
 			for (int ray_iter = 0; ray_iter < nb_rayons; ray_iter++)
 			{
@@ -114,7 +125,7 @@ int main()
 
 				//Second rayon pour la profondeur de champ
 				double dist_focale = 55.0;
-				double ouverture = 0.0;// Mettre à 0.0 pour annuelr l'effet
+				double ouverture = 0.0;// Mettre à 0.0 pour annuler l'effet
 				double b1 = (double)rand() / (double)RAND_MAX;
 				double b2 = (double)rand() / (double)RAND_MAX;
 				double dx = sqrt(-2 * log(b1)) * cos(2 * pi_val * b2) * ouverture;
@@ -135,7 +146,7 @@ int main()
 
 			}
 			// divisé par deux car deux fois plus de rayons (a cause de la profondeur de champ)
-			RGB = (1 / (double)nb_rayons/2.0) * RGB;
+			RGB = (1.0 / (double)nb_rayons/2.0) * RGB;
 			// Correction Gamma
 			RGB.x = pow(RGB.x, 0.45);
 			RGB.y = pow(RGB.y, 0.45);
@@ -150,8 +161,8 @@ int main()
 			image[(i * W + j) * 3 + 0] = (int)(RGB.x);
 			image[(i * W + j) * 3 + 1] = (int)(RGB.y);
 			image[(i * W + j) * 3 + 2] = (int)(RGB.z);
-		}
 
+		}
 	}
 
 	//Enregistrement de l'image sur le disque dur

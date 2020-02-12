@@ -17,9 +17,9 @@ Scene::Scene()
 /////////////////////////////
 // Ajout sphere
 /////////////////////////////
-void Scene::add_sphere(Sphere* sphere)
+void Scene::add_objet(Object* object)
 {
-	liste_objets.push_back(sphere);
+	liste_objets.push_back(object);
 }
 
 /////////////////////////////
@@ -40,7 +40,7 @@ intersection_details Scene::intersection(Ray& ray)
 	// Parcours des objets de la scene
 	for (int i=0; i<liste_objets.size();i++)
 	{
-		Sphere* sphere = liste_objets.at(i);
+		Object* sphere = liste_objets.at(i);
 		intersection_details infos_inter_sphere = sphere->intersect(ray);
 		// Si il y a intersection avec la sphere
 		if (infos_inter_sphere.intersection==true)
@@ -74,7 +74,7 @@ Vector Scene::getColorLambert(intersection_details infos_intersection)
 		//On verifie si c'est une source de lumière
 		if (liste_objets.at(i)->intensite > 0.0)
 		{
-			Sphere* source = liste_objets.at(i);
+			Sphere* source = dynamic_cast<Sphere*>(liste_objets.at(i));
 			//On prend un point au hasard sur cette source
 			//Construction repère local
 			Vector e_z = source->centre - infos_intersection.inter_Pos;
@@ -141,6 +141,7 @@ Vector Scene::getColorLambert(intersection_details infos_intersection)
 				double facteur = light_power * infos_intersection.albedo * cos_theta*cos_theta/pi/ ((pt_on_source - infos_intersection.inter_Pos).norme2())/cos_alpha;
 				Vector RGB = infos_intersection.inter_Color;
 				RGB = facteur * RGB;
+
 
 				return RGB;
 			}
