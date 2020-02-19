@@ -28,80 +28,138 @@ public:
 		centre.z = 0.5 * (zmin + zmax);
 	}
 
+	bool is_inside(Vector& point)
+	{
+		if (point.x <= xmax && point.x >= xmin)
+		{
+			if (point.y <= ymax && point.y >=ymin)
+			{
+				if (point.z <= zmax && point.z >= zmin)
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	bool intersection(Ray& rayon)
 	{
-		//Plans (x,y):
-		Vector n(0.0, 0.0, 1.0);
-		Vector pt_plan_min(centre.x, centre.y, zmin);
-		double tz_min;
-		double den = rayon.direction.dot(n);
-		if (den == 0) { tz_min = 10000000000000.0; }
-		else 
+		Vector normal(0.0, 0.0, 0.0);
+		Vector A(0.0, 0.0, 0.0);
+		double tx_min, tx_max, ty_min, ty_max, tz_min, tz_max;
+		bool parallele_x = false;
+		bool parallele_y = false;
+		bool parallele_z = false;
+
+		double denom;
+
+		//Plans (x,y)
+		normal = Vector(0.0, 0.0, 1.0);
+		//min
+		A = Vector(centre.x, centre.y, zmin);
+		denom = rayon.direction.dot(normal);
+		if (denom == 0) { parallele_z = true; }
+		else { tz_min = ((rayon.origine + (-1.0) * A).dot(normal)) / denom; }
+		//max
+		A = Vector(centre.x, centre.y, zmax);
+		denom = rayon.direction.dot(normal);
+		if (denom == 0) { parallele_z = true; }
+		else { tz_max = ((rayon.origine + (-1.0) * A).dot(normal)) / denom; }
+
+
+		//Plans (x,z)
+		normal = Vector(0.0, 1.0, 0.0);
+		//min
+		A = Vector(centre.x, ymin, centre.z);
+		denom = rayon.direction.dot(normal);
+		if (denom == 0) { parallele_y = true; }
+		else { ty_min = ((rayon.origine + (-1.0) * A).dot(normal)) / denom; }
+		//max
+		A = Vector(centre.x, ymax, centre.z);
+		denom = rayon.direction.dot(normal);
+		if (denom == 0) { parallele_y = true; }
+		else { ty_max = ((rayon.origine + (-1.0) * A).dot(normal)) / denom; }
+
+
+		//Plans (y,z)
+		normal = Vector(1.0, 0.0, 0.0);
+		//min
+		A = Vector(xmin, centre.y, centre.z);
+		denom = rayon.direction.dot(normal);
+		if (denom == 0) { parallele_x = true; }
+		else { tx_min = ((rayon.origine + (-1.0) * A).dot(normal)) / denom; }
+		//max
+		A = Vector(xmax, centre.y, centre.z);
+		denom = rayon.direction.dot(normal);
+		if (denom == 0) { parallele_x = true; }
+		else { tx_max = ((rayon.origine + (-1.0) * A).dot(normal)) / denom; }
+
+
+		//Cas parallele
+		if (parallele_x == true)
 		{
-			double num = (pt_plan_min + (-1.0) * rayon.origine).dot(n);
-			tz_min = num/den;
+			if (rayon.origine.y >= ymin && rayon.origine.y <= ymax && rayon.origine.z >= zmin && rayon.origine.z <= ymax)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
-		Vector pt_plan_max(centre.x, centre.y, zmax);
-		double tz_max;
-		den = rayon.direction.dot(n);
-		if (den == 0) { tz_max = 10000000000000.0; }
-		else
+		if (parallele_y == true)
 		{
-			double num = (pt_plan_max + (-1.0) * rayon.origine).dot(n);
-			tz_max = num / den;
+			if (rayon.origine.x >= xmin && rayon.origine.x <= xmax && rayon.origine.z >= zmin && rayon.origine.z <= ymax)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
-		//Plans (x,z):
-		n= Vector(0.0, 1.0, 0.0);
-		pt_plan_min=Vector(centre.x, ymin, centre.z);
-		double ty_min;
-		den = rayon.direction.dot(n);
-		if (den == 0) { ty_min = 10000000000000.0; }
-		else
+		if (parallele_z == true)
 		{
-			double num = (pt_plan_min + (-1.0) * rayon.origine).dot(n);
-			ty_min = num / den;
-		}
-		pt_plan_max= Vector(centre.x, ymax, centre.z);
-		double ty_max;
-		den = rayon.direction.dot(n);
-		if (den == 0) { ty_max = 10000000000000.0; }
-		else
-		{
-			double num = (pt_plan_max + (-1.0) * rayon.origine).dot(n);
-			ty_max = num / den;
-		}
-		//Plans (y,z):
-		n= Vector(1.0, 0.0, 0.0);
-		pt_plan_min= Vector(xmin, centre.y, centre.z);
-		double tx_min;
-		den = rayon.direction.dot(n);
-		if (den == 0) { tx_min = 10000000000000.0; }
-		else
-		{
-			double num = (pt_plan_min + (-1.0) * rayon.origine).dot(n);
-			tx_min = num / den;
-		}
-		pt_plan_max= Vector(xmax, centre.y, centre.z);
-		double tx_max;
-		den = rayon.direction.dot(n);
-		if (den == 0) { tx_max = 10000000000000.0; }
-		else
-		{
-			double num = (pt_plan_max +(-1.0)* rayon.origine).dot(n);
-			tx_max = num / den;
+			if (rayon.origine.y >= ymin && rayon.origine.y <= ymax && rayon.origine.x >= xmin && rayon.origine.x <= xmax)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 
-		//
+		//Cas general
+		//On reordonne
+		if (tx_min > tx_max) { double save = tx_max; tx_max = tx_min; tx_min = save; }
+		if (ty_min > ty_max) { double save = ty_max; ty_max = ty_min; ty_min = save; }
+		if (tz_min > tz_max) { double save = tz_max; tz_max = tz_min; tz_min = save; }
+
 		double max_des_min = tx_min;
-		if (ty_min > max_des_min) { max_des_min = ty_min; }
-		if (tz_min > max_des_min) { max_des_min = tz_min; }
+		if (ty_min > max_des_min) { max_des_min = ty_min; };
+		if (tz_min > max_des_min) { max_des_min = tz_min; };
+
 		double min_des_max = tx_max;
 		if (ty_max < min_des_max) { min_des_max = ty_max; }
 		if (tz_max < min_des_max) { min_des_max = tz_max; }
 
-		return (max_des_min > min_des_max);
+		return (max_des_min < min_des_max);
 	}
 };
+
+
+//Structure node pour l'arbre
+struct node
+{
+	BBox bbox;
+	int begin=0;
+	int end=0;
+	node* left_leaf=nullptr;
+	node* right_leaf=nullptr;
+};
+
 
 class TriangleIndices {
 public:
@@ -148,7 +206,17 @@ public:
 		std::cout << "z : " << zmin << " --> " << zmax << std::endl;
 		std::cout << "------------------" << std::endl;
 
+		//Création de la BBox
 		bounding_box = BBox(xmin, xmax, ymin, ymax, zmin, zmax);
+		//Création de la racine
+		root.bbox = bounding_box;
+		root.begin = 0;
+		root.end = indices.size();
+		//Construction de la hierachie
+		build_hierarchy(&root);
+		std::cout << "BVH calcul termine" << std::endl;
+
+
 	}
 
 	void readOBJ(const char* obj) {
@@ -366,22 +434,260 @@ public:
 		}
 	}
 
+	std::vector<double> compute_bounding_box(std::vector<int> tri_inds)
+	{
+		if (tri_inds.size() == 0)
+		{
+			return { 0,0,0,0,0,0 };
+		}
+		double xmin, ymin, zmin, xmax, ymax, zmax;
 
+		xmin = vertices.at(indices.at(tri_inds.at(0)).vtxi).x;
+		xmax = vertices.at(indices.at(tri_inds.at(0)).vtxi).x;
+		ymin = vertices.at(indices.at(tri_inds.at(0)).vtxi).y;
+		ymax = vertices.at(indices.at(tri_inds.at(0)).vtxi).y;
+		zmin = vertices.at(indices.at(tri_inds.at(0)).vtxi).z;
+		zmax = vertices.at(indices.at(tri_inds.at(0)).vtxi).z;
+
+		//Parcourt des traingles
+		for (int i = 0; i < tri_inds.size(); i++)
+		{
+			//Sommet i
+			double x = vertices.at(indices.at(tri_inds.at(i)).vtxi).x;
+			double y = vertices.at(indices.at(tri_inds.at(i)).vtxi).y;
+			double z = vertices.at(indices.at(tri_inds.at(i)).vtxi).z;
+
+			if (x < xmin) { xmin = x; }
+			if (x > xmax) { xmax = x; }
+			if (y < ymin) { ymin = y; }
+			if (y > ymax) { ymax = y; }
+			if (z < zmin) { zmin = z; }
+			if (z > zmax) { zmax = z; }
+
+			//Sommet j
+			x = vertices.at(indices.at(tri_inds.at(i)).vtxj).x;
+			y = vertices.at(indices.at(tri_inds.at(i)).vtxj).y;
+			z = vertices.at(indices.at(tri_inds.at(i)).vtxj).z;
+
+			if (x < xmin) { xmin = x; }
+			if (x > xmax) { xmax = x; }
+			if (y < ymin) { ymin = y; }
+			if (y > ymax) { ymax = y; }
+			if (z < zmin) { zmin = z; }
+			if (z > zmax) { zmax = z; }
+
+			//Sommet k
+			x = vertices.at(indices.at(tri_inds.at(i)).vtxk).x;
+			y = vertices.at(indices.at(tri_inds.at(i)).vtxk).y;
+			z = vertices.at(indices.at(tri_inds.at(i)).vtxk).z;
+
+			if (x < xmin) { xmin = x; }
+			if (x > xmax) { xmax = x; }
+			if (y < ymin) { ymin = y; }
+			if (y > ymax) { ymax = y; }
+			if (z < zmin) { zmin = z; }
+			if (z > zmax) { zmax = z; }
+		}
+
+		return { xmin,xmax,ymin,ymax,zmin,zmax };
+	}
+
+	//Construction Bounding Volumes Hierarchy de manière récursive
+	void build_hierarchy(node* tree_node)
+	{
+		//condition d'arret
+		if ((tree_node->end - tree_node->begin) > 10) //Le nombre de triangles max dans chaque feuille 
+		{
+			//On cherche la plus grande direction
+			double x_length = tree_node->bbox.xmax - tree_node->bbox.xmin;
+			double y_length = tree_node->bbox.ymax - tree_node->bbox.ymin;
+			double z_length = tree_node->bbox.zmax - tree_node->bbox.zmin;
+
+			std::vector<int> left_node_indices;
+			std::vector<int> right_node_indices;
+
+			std::vector<double> left_node_bounds;
+			std::vector<double> right_node_bounds;
+
+			//Si plus grande direction : x
+			if (x_length > y_length&& x_length > z_length)
+			{
+				double xmoy = 0.5 * (tree_node->bbox.xmax + tree_node->bbox.xmin);
+
+				//On parcourt les triangles du pere
+				for (int i = tree_node->begin; i < tree_node->end; i++)
+				{
+					//Calcul du centre du ieme triangle
+					TriangleIndices& triangle = indices.at(i);
+					Vector centre = vertices.at(triangle.vtxi);
+					centre = centre + vertices.at(triangle.vtxj);
+					centre = centre + vertices.at(triangle.vtxk);
+					centre = (1.0 / 3.0) * centre;
+
+					//On check si le centre du triangle est dans le fils de gauche
+					if (centre.x < xmoy)
+					{
+						left_node_indices.push_back(i);
+					}
+					//Sinon, il est dans le fils de droite
+					else
+					{
+						right_node_indices.push_back(i);
+					}
+				}
+			}
+			//Si plus grande direction : y
+			else if (y_length > x_length&& y_length > z_length)
+			{
+				double ymoy = 0.5 * (tree_node->bbox.ymax + tree_node->bbox.ymin);
+				//On parcourt les triangles du pere
+				for (int i = tree_node->begin; i < tree_node->end; i++)
+				{
+					//Calcul du centre du ieme triangle
+					TriangleIndices& triangle = indices.at(i);
+					Vector centre = vertices.at(triangle.vtxi);
+					centre = centre + vertices.at(triangle.vtxj);
+					centre = centre + vertices.at(triangle.vtxk);
+					centre = (1.0 / 3.0) * centre;
+
+					//On check si le centre du triangle est dans le fils de gauche
+					if (centre.y < ymoy)
+					{
+						left_node_indices.push_back(i);
+					}
+					//Sinon, il est dans le fils de droite
+					else
+					{
+						right_node_indices.push_back(i);
+					}
+				}
+			}
+			//Si plus grande direction : z
+			else
+			{
+				double zmoy = 0.5 * (tree_node->bbox.zmax + tree_node->bbox.zmin);
+				//On parcourt les triangles du pere
+				for (int i = tree_node->begin; i < tree_node->end; i++)
+				{
+					//Calcul du centre du ieme triangle
+					TriangleIndices& triangle = indices.at(i);
+					Vector centre = vertices.at(triangle.vtxi);
+					centre = centre + vertices.at(triangle.vtxj);
+					centre = centre + vertices.at(triangle.vtxk);
+					centre = (1.0 / 3.0) * centre;
+
+					//On check si le centre du triangle est dans le fils de gauche
+					if (centre.z < zmoy)
+					{
+						left_node_indices.push_back(i);
+					}
+					//Sinon, il est dans le fils de droite
+					else
+					{
+						right_node_indices.push_back(i);
+					}
+				}
+			}
+			//On va calculer la bounding box de gauche et celle de droite
+			left_node_bounds = compute_bounding_box(left_node_indices);
+			right_node_bounds = compute_bounding_box(right_node_indices);
+			//On réordonne la liste
+			std::vector<TriangleIndices> indices_copy(indices);
+			//std::vector<TriangleIndices> indices_copy;
+			//for (int i = 0; i < indices.size(); i++) { indices_copy.push_back(indices.at(i)); }
+			//D'abord ceux de gauche
+			for (int k = 0; k < left_node_indices.size(); k++)
+			{
+				indices.at(tree_node->begin + k) = indices_copy.at(left_node_indices.at(k));
+			}
+			//Puis ceux de droite
+			for (int k = 0; k < right_node_indices.size(); k++)
+			{
+				indices.at(tree_node->begin + left_node_indices.size() + k) = indices_copy.at(right_node_indices.at(k));
+			}
+
+
+			tree_node->left_leaf = new node;
+			tree_node->left_leaf->bbox = BBox(left_node_bounds.at(0), left_node_bounds.at(1), left_node_bounds.at(2), left_node_bounds.at(3), left_node_bounds.at(4), left_node_bounds.at(5));
+			tree_node->left_leaf->begin = tree_node->begin;
+			tree_node->left_leaf->end = tree_node->begin + left_node_indices.size();
+
+			tree_node->right_leaf = new node;
+			tree_node->right_leaf->bbox = BBox(right_node_bounds.at(0), right_node_bounds.at(1), right_node_bounds.at(2), right_node_bounds.at(3), right_node_bounds.at(4), right_node_bounds.at(5));
+			tree_node->right_leaf->begin = tree_node->begin + left_node_indices.size();
+			tree_node->right_leaf->end = tree_node->begin + left_node_indices.size()+ right_node_indices.size();
+
+
+			if (left_node_indices.size() && right_node_indices.size() > 0) { build_hierarchy(tree_node->left_leaf); }
+			if (left_node_indices.size() && right_node_indices.size() > 0) { build_hierarchy(tree_node->right_leaf); }
+		}
+	}
+
+
+	std::vector<int> check_intersection(Ray& rayon, node& tree_node)
+	{
+		//Si on a une intersection
+		if (tree_node.bbox.intersection(rayon) == true)
+		{
+			if (tree_node.left_leaf != nullptr && tree_node.left_leaf->bbox.intersection(rayon) == true && tree_node.right_leaf != nullptr && tree_node.right_leaf->bbox.intersection(rayon) == true)
+			{
+				std::vector<int> res_left = check_intersection(rayon, *(tree_node.left_leaf));
+				std::vector<int> res_right = check_intersection(rayon, *(tree_node.right_leaf));
+				return { res_left.at(0),res_right.at(1) };
+				//return { tree_node.left_leaf->begin,tree_node.right_leaf->end };
+			}
+			else if (tree_node.left_leaf!= nullptr && tree_node.left_leaf->bbox.intersection(rayon) == true)
+			{
+				return check_intersection(rayon, *(tree_node.left_leaf));
+				//return { tree_node.left_leaf->begin,tree_node.left_leaf->end };
+			}
+			else if (tree_node.right_leaf != nullptr &&  tree_node.right_leaf->bbox.intersection(rayon) == true)
+			{
+				return check_intersection(rayon, *(tree_node.right_leaf));
+				//return { tree_node.right_leaf->begin,tree_node.right_leaf->end };
+			}
+			else
+			{
+				return { tree_node.begin,tree_node.end };
+			}
+		}
+		else
+		{
+			return { 0,0 };
+		}
+	}
+
+
+	// Intersection rayon-mesh
 	virtual intersection_details intersect(Ray& rayon)
 	{
 
-		//On teste d'abord l'intersection avec la BBox
+		//On teste l'intersection les BBoxs
+		
+		
+		std::vector<int> boundaries = check_intersection(rayon, root);
+
+		int left_bound = boundaries.at(0);
+		int right_bound = boundaries.at(1);
+
+		
+
+		/*
+		//Si pas d'intersection
 		if (bounding_box.intersection(rayon)==false)
 		{
 			intersection_details renvoi;
 			return renvoi;
 		}
+		int left_bound = 0;
+		int right_bound = indices.size();
+		*/
 
-
+		//Sinon, on continue
 		std::vector<intersection_details> all_intersections;
 
 		//Parcourt les triangles
-		for (int t = 0; t < indices.size(); t++)
+		for (int t = left_bound; t < right_bound; t++)
 		{
 			//creation du triangle
 			Triangle tri(vertices.at(indices.at(t).vtxi), vertices.at(indices.at(t).vtxj), vertices.at(indices.at(t).vtxk), Vector(255.0, 255.0, 255.0), 1.0);
@@ -417,6 +723,7 @@ public:
 
 
 	std::vector<TriangleIndices> indices;
+	node root;
 	std::vector<Vector> vertices;
 	std::vector<Vector> normals;
 	std::vector<Vector> uvs; // Vector en 3D mais on n'utilise que 2 composantes

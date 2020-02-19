@@ -92,7 +92,7 @@ int main()
 
 
 			//Nombre de rayons 
-			int nb_rayons = 32/2; // Divisé par deux car profondeur de champ => *2
+			int nb_rayons = 64/2; // Divisé par deux car profondeur de champ => *2
 			Vector RGB(0, 0, 0);
 			for (int ray_iter = 0; ray_iter < nb_rayons; ray_iter++)
 			{
