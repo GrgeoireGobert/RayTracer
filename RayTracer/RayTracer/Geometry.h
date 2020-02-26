@@ -406,10 +406,23 @@ public:
 
 		}
 		fclose(f);
+
+		//add_texture("Textures/Bump_2K.png");
+		//add_texture("Textures/Clouds_2K.png");
+		//add_texture("Textures/Diffuse_2K.png");
+		//add_texture("Textures/Night_lights_2K.png");
+		//add_texture("Textures/Ocean_Mask_2K.png");
+		int width, height, channels;
+		stbi_set_flip_vertically_on_load(true);
+		unsigned char* image = stbi_load("Textures/Diffuse_2K.png",	&width,&height,	&channels,STBI_rgb);
+		textures.push_back(image);
+		w.push_back(width);
+		h.push_back(height);
+		std::cout << "Texture OK" << std::endl;
 		
 	}
 
-
+	/*
 	void add_texture(const char* filename) {
 
 		textures.resize(textures.size() + 1);
@@ -433,6 +446,7 @@ public:
 			std::swap(textures[textures.size() - 1][i], textures[textures.size() - 1][i + 2]);
 		}
 	}
+	*/
 
 	std::vector<double> compute_bounding_box(std::vector<int> tri_inds)
 	{
@@ -686,18 +700,23 @@ public:
 		//Sinon, on continue
 		std::vector<intersection_details> all_intersections;
 
+		std::vector<int> Tri_inds;
 		//Parcourt les triangles
 		for (int t = left_bound; t < right_bound; t++)
 		{
 			//creation du triangle
-			Triangle tri(vertices.at(indices.at(t).vtxi), vertices.at(indices.at(t).vtxj), vertices.at(indices.at(t).vtxk), Vector(255.0, 255.0, 255.0), 1.0);
+			Triangle tri(vertices.at(indices.at(t).vtxi), vertices.at(indices.at(t).vtxj), vertices.at(indices.at(t).vtxk), Vector(200.0, 200.0, 200.0), 1.0);
 			
 			// Inversion de la normale si besoin !!!
 			tri.n = (-1.0) * tri.n;
 
 			//On checke l'intersection
 			intersection_details infos = tri.intersect(rayon);
-			if (infos.intersection == true) { all_intersections.push_back(infos); }
+			if (infos.intersection == true)
+			{ 
+				all_intersections.push_back(infos); 
+				Tri_inds.push_back(t);
+			}
 		}
 
 		//Si pas d'interscetion
@@ -711,10 +730,73 @@ public:
 		{
 			intersection_details renvoi;
 			renvoi = all_intersections.at(0);
+			int final_tri_ind=Tri_inds.at(0);
 			for (int i = 1; i < all_intersections.size(); i++)
 			{
-				if (all_intersections.at(i).t < renvoi.t) { renvoi = all_intersections.at(i); }
+				if (all_intersections.at(i).t < renvoi.t) 
+				{ 
+					renvoi = all_intersections.at(i); 
+					final_tri_ind = Tri_inds.at(i);
+				}
 			}
+
+			///////////
+			//Coords UV
+			///////////
+			int tri_ind = final_tri_ind;
+			// Les 3 sommets:
+			Vector A = vertices.at(indices.at(tri_ind).vtxi);
+			Vector B = vertices.at(indices.at(tri_ind).vtxj);
+			Vector C = vertices.at(indices.at(tri_ind).vtxk);
+			Triangle tri(A, B, C, Vector(0, 0, 0), 0.5);
+			// Les uv des 3 sommets:
+			Vector UV_A = uvs.at(indices.at(tri_ind).uvi);
+			Vector UV_B = uvs.at(indices.at(tri_ind).uvj);
+			Vector UV_C = uvs.at(indices.at(tri_ind).uvk);
+			// Les coords barycentriques du pt d'intersection:
+			Vector P = renvoi.inter_Pos;
+			// Calcul des aires
+			double ABC = 0.5 * ((B - A).prod_vect(C - A)).dot(tri.n);
+			double PBC = 0.5 * ((B - P).prod_vect(C - P)).dot(tri.n);
+			double APC = 0.5 * ((P - A).prod_vect(C - A)).dot(tri.n);
+			double ABP = 0.5 * ((B - A).prod_vect(P - A)).dot(tri.n);
+			// Coords barycentriques
+			double a = PBC / ABC;
+			double b = APC / ABC;
+			double c = ABP / ABC;
+			// Coords UV du pt d'intersection
+			Vector UV_P = a * UV_A + b * UV_B + c * UV_C;
+			Vector local_Norm = a * normals.at(indices.at(tri_ind).ni)+ b * normals.at(indices.at(tri_ind).nj)+ c * normals.at(indices.at(tri_ind).nk);
+			/*
+			std::cout << "------------- " << final_tri_ind << std::endl;
+			std::cout << "Aires : " << ABC << " " << PBC << " " << APC << " " << ABP << std::endl;
+			std::cout << "Barycentre : " << a << " " << b << " " << c << std::endl;
+			std::cout << "UV : " << UV_P.x << " " << UV_P.y << std::endl;
+			*/
+			unsigned char* img_tex = textures.at(0);
+			/*
+			std::cout << " -------------- " << w.at(0) * h.at(0) *3 << std::endl;
+			std::cout << (int)(UV_P.y*h.at(0) * w.at(0) * 3 + UV_P.x*w.at(0) * 3)<< std::endl;
+			std::cout << (int)(UV_P.y * h.at(0) * w.at(0) * 3 + UV_P.x * w.at(0) * 3) +1<< std::endl;
+			std::cout << (int)(UV_P.y * h.at(0) * w.at(0) * 3 + UV_P.x * w.at(0) * 3) +2<< std::endl;
+			*/
+
+			//std::cout << h.at(0) << " " << w.at(0) << " " << sizeof(img_tex) <<  std::endl;
+			//std::cout << UV_P.x << " " << UV_P.y << std::endl;
+
+			auto pixel_R = (int)img_tex[(int)(UV_P.y * h.at(0)) * w.at(0) * 3 + (int)(UV_P.x * w.at(0)) * 3];
+			auto pixel_V = (int)img_tex[(int)(UV_P.y * h.at(0)) * w.at(0) * 3 + (int)(UV_P.x * w.at(0))*3 +1];
+			auto pixel_B = (int)img_tex[(int)(UV_P.y * h.at(0)) * w.at(0) * 3 + (int)(UV_P.x * w.at(0))*3 +2];
+
+			renvoi.inter_Color = Vector((double)pixel_R, (double)pixel_V, (double)pixel_B);
+			//std::cout << pixel_R << " " << pixel_V << " " << pixel_B << std::endl;
+			//std::cout << " --- " << std::endl;
+			renvoi.inter_Color = Vector((double)pixel_R, (double)pixel_V, (double)pixel_B);
+			renvoi.inter_Norm = local_Norm;
+			//renvoi.inter_Color = Vector(0, 100, 100);
+
+			//std::cout << renvoi.inter_Color.x << " " << renvoi.inter_Color.y << " " << renvoi.inter_Color.z << std::endl;
+
 			return renvoi;
 		}
 
@@ -730,6 +812,6 @@ public:
 	std::vector<Vector> vertexcolors;
 	BBox bounding_box;
 
-	std::vector<std::vector<unsigned char> > textures;
+	std::vector<unsigned char*> textures;
 	std::vector<int> w, h;
 };

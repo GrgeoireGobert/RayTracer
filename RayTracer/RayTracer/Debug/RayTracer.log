@@ -1,8 +1,17 @@
-﻿  Ray.cpp
+﻿  Object.cpp
   RayTracer.cpp
+C:\Users\gobgr\Google Drive\Centrale\MOS - Ray Tracing\RayTracer\RayTracer\Geometry.h(179,21): warning C4018: '<' : incompatibilité signed/unsigned
+C:\Users\gobgr\Google Drive\Centrale\MOS - Ray Tracing\RayTracer\RayTracer\Geometry.h(191,21): warning C4018: '<' : incompatibilité signed/unsigned
+C:\Users\gobgr\Google Drive\Centrale\MOS - Ray Tracing\RayTracer\RayTracer\Geometry.h(467,21): warning C4018: '<' : incompatibilité signed/unsigned
+C:\Users\gobgr\Google Drive\Centrale\MOS - Ray Tracing\RayTracer\RayTracer\Geometry.h(613,22): warning C4018: '<' : incompatibilité signed/unsigned
+C:\Users\gobgr\Google Drive\Centrale\MOS - Ray Tracing\RayTracer\RayTracer\Geometry.h(618,22): warning C4018: '<' : incompatibilité signed/unsigned
   Scene.cpp
-  Sphere.cpp
-  Vector.cpp
-  Génération de code en cours...
+C:\Users\gobgr\Google Drive\Centrale\MOS - Ray Tracing\RayTracer\RayTracer\Geometry.h(734,22): warning C4018: '<' : incompatibilité signed/unsigned
 C:\Users\gobgr\Google Drive\Centrale\MOS - Ray Tracing\RayTracer\RayTracer\Scene.cpp(41,17): warning C4018: '<' : incompatibilité signed/unsigned
+  Sphere.cpp
+  Triangle.cpp
+  Génération de code en cours...
+C:\Users\gobgr\Google Drive\Centrale\MOS - Ray Tracing\RayTracer\RayTracer\Scene.cpp(72,20): warning C4018: '<' : incompatibilité signed/unsigned
+C:\Users\gobgr\Google Drive\Centrale\MOS - Ray Tracing\RayTracer\RayTracer\Triangle.cpp(113): warning C4715: 'Triangle::intersect' : les chemins de contrôle ne retournent pas tous une valeur
+C:\Users\gobgr\Google Drive\Centrale\MOS - Ray Tracing\RayTracer\RayTracer\Scene.cpp(158): warning C4715: 'Scene::getColorLambert' : les chemins de contrôle ne retournent pas tous une valeur
   RayTracer.vcxproj -> C:\Users\gobgr\Google Drive\Centrale\MOS - Ray Tracing\RayTracer\Debug\RayTracer.exe

@@ -49,8 +49,9 @@ int main()
 
 	//Geometry mesh("Low-Poly-Racing-Car.obj", 0.1, Vector(0.0, 0.0, 10.0));
 	//Geometry mesh("wolf.obj", 0.1, Vector(0.0, 0.0, 10.0));
-	Geometry mesh("Arbre.obj", 15.0, Vector(-25.0, 0.0, -20.0));
-	//// Ajout des spheres a la scene
+	//Geometry mesh("Arbre.obj", 15.0, Vector(-25.0, 0.0, -20.0));
+	Geometry mesh("Earth.obj", 5.0, Vector(0.0, 0.0, 0.0));
+	//// Ajout des objets a la scene
 	//scene.add_objet(&sphere1);
 	scene.add_objet(&sphere2);
 	scene.add_objet(&sphere3);
@@ -92,7 +93,7 @@ int main()
 
 
 			//Nombre de rayons 
-			int nb_rayons = 64/2; // Divisé par deux car profondeur de champ => *2
+			int nb_rayons = 2/2; // Divisé par deux car profondeur de champ => *2
 			Vector RGB(0, 0, 0);
 			for (int ray_iter = 0; ray_iter < nb_rayons; ray_iter++)
 			{
@@ -112,15 +113,18 @@ int main()
 				Vector U = X_ij;
 				U.normalize();
 				Ray ray_ij(camera_centre, U);
+				
 
 				// On determine si il y a intersection
 				intersection_details infos_intersection = scene.intersection(ray_ij);
+
 				// Si il y a une intersection
 				if (infos_intersection.intersection)
 				{
+
 					// Variable pour stocker la couleur du pixel
 					//Facteur indirect a adapter en focntion du nombre de rebond a cause de la multiplication des couleurs
-					RGB = RGB + 0.5 * scene.getDirect(ray_ij, infos_intersection, 1.0, 5, 5) + 0.5 * scene.getIndirect(infos_intersection, 1);
+					RGB = RGB + scene.getDirect(ray_ij, infos_intersection, 1.0, 5, 5) + scene.getIndirect(infos_intersection, 1);
 				}
 
 				//Second rayon pour la profondeur de champ
@@ -140,8 +144,7 @@ int main()
 				if (new_infos_intersection.intersection)
 				{
 					// Variable pour stocker la couleur du pixel
-					//Facteur indirect a adapter en focntion du nombre de rebond a cause de la multiplication des couleurs
-					RGB = RGB + 0.5 * scene.getDirect(new_ray_ij, new_infos_intersection, 1.0, 5, 5) + 0.5 * scene.getIndirect(new_infos_intersection, 1);
+					RGB = RGB + scene.getDirect(new_ray_ij, new_infos_intersection, 1.0, 5, 5) + scene.getIndirect(new_infos_intersection, 1);
 				}
 
 			}
