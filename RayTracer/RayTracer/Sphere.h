@@ -16,6 +16,6 @@ public:
 	Vector centre;
 	double rayon;
 
-	Sphere(const Vector& Centre, const double radius, const Vector& Color, const double albed,bool miror, bool transp,double ind_sphere, double intensity);
+	Sphere(const Vector& Centre, const double radius, const Vector& Color, const double albed,bool miror, bool transp,double ind_sphere, double intensity,int N_phong, double Rho_diff_phong);
 	virtual intersection_details intersect(Ray& rayon);
 };

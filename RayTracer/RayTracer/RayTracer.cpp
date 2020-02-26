@@ -32,27 +32,26 @@ int main()
 	Scene scene;
 	Vector camera_centre(0.0, 0.0, 55.0); // Centre de la caméra
 	//// Creation des spheres
-	Sphere sphere1(Vector(0.0, 0.0, 0.0), 15.0, Vector(255.0, 255.0, 255.0), 1.0, false, false, 1.0,0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
-	Sphere sphere2(Vector(0.0, 0.0, -1000.0), 940.0, Vector(0.0, 255.0, 0.0), 1.0, false, false, 1.0, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
-	Sphere sphere3(Vector(0.0, 1000.0, 0.0), 940.0, Vector(255.0, 0.0, 0.0), 1.0, false, false, 1.0, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere1(Vector(0.0, 0.0, 0.0), 15.0, Vector(255.0, 255.0, 255.0), 1.0, false, false, 1.0,0.0, 1000,0.8); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere2(Vector(0.0, 0.0, -1000.0), 940.0, Vector(0.0, 255.0, 0.0), 1.0, false, false, 1.0, 0.0, 1000, 0.8); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere3(Vector(0.0, 1000.0, 0.0), 940.0, Vector(255.0, 0.0, 0.0), 1.0, false, false, 1.0, 0.0, 1000, 0.8); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
 	////
-	Sphere sphere4(Vector(10.0, 15.0, 10.0), 4.0, Vector(0.0, 0.0, 0.0), 1.0, false, true, 2.33, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
-	Sphere sphere9(Vector(-10.0, -15.0, 20.0), 4.0, Vector(0.0, 0.0, 0.0), 1.0, true, false, 1.0, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
-	Sphere sphere10(Vector(20.0, -30.0, 0.0), 4.0, Vector(255.0, 255.0, 255.0), 1.0, false, false, 1.0, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere4(Vector(10.0, 15.0, 10.0), 4.0, Vector(0.0, 0.0, 0.0), 1.0, false, true, 2.33, 0.0, 1000, 0.8); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere9(Vector(-10.0, -15.0, 20.0), 4.0, Vector(0.0, 0.0, 0.0), 1.0, true, false, 1.0, 0.0, 1000, 0.8); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere10(Vector(20.0, -30.0, 0.0), 4.0, Vector(255.0, 255.0, 255.0), 1.0, false, false, 1.0, 0.0, 1000, 0.8); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
 	////
-	Sphere sphere5(Vector(0.0, -1000.0, 0.0), 940.0, Vector(0.0, 0, 255.0), 1.0, false, false, 1.0, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
-	Sphere sphere6(Vector(0.0, 0.0, 1000.0), 940.0, Vector(255.0, 255.0, 0.0), 1.0, false, false, 1.0, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
-	Sphere sphere7(Vector(1000.0, 0.0, 0.0), 940.0, Vector(255.0, 0.0, 255.0), 1.0, false, false, 1.0, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
-	Sphere sphere8(Vector(-1000.0, 0.0, 0.0), 940.0, Vector(255.0, 255.0, 255.0), 1.0, false, false, 1.0, 0.0); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere5(Vector(0.0, -1000.0, 0.0), 940.0, Vector(0.0, 0, 255.0), 1.0, false, false, 1.0, 0.0, 1000, 0.8); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere6(Vector(0.0, 0.0, 1000.0), 940.0, Vector(255.0, 255.0, 0.0), 1.0, false, false, 1.0, 0.0, 1000, 0.8); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere7(Vector(1000.0, 0.0, 0.0), 940.0, Vector(255.0, 0.0, 255.0), 1.0, false, false, 1.0, 0.0, 1000, 0.8); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
+	Sphere sphere8(Vector(-1000.0, 0.0, 0.0), 940.0, Vector(255.0, 255.0, 255.0), 1.0, false, false, 1.0, 0.0, 1000, 0.8); // Objet sphere (centre,rayon,couleur,albedo,miroir,transparent,indice)
 
-	Triangle triangle1(Vector(-20.0, -20.0, -10.0), Vector(-20.0, 20.0, -10.0), Vector(-20.0, 0.0, 30.0), Vector(255.0, 255.0, 255.0), 1.0);
+	Triangle triangle1(Vector(-20.0, -20.0, -10.0), Vector(-20.0, 20.0, -10.0), Vector(-20.0, 0.0, 30.0), Vector(255.0, 255.0, 255.0), 1.0, false, true, 1.5, 0.0, 1000, 0.8);
 
-	//Geometry mesh("Low-Poly-Racing-Car.obj", 0.1, Vector(0.0, 0.0, 10.0));
-	//Geometry mesh("wolf.obj", 0.1, Vector(0.0, 0.0, 10.0));
-	//Geometry mesh("Arbre.obj", 15.0, Vector(-25.0, 0.0, -20.0));
 	Geometry mesh("Earth.obj", 5.0, Vector(0.0, 0.0, 0.0));
+	mesh.add_texture("Textures/Diffuse_2K.png");
+	
 	//// Ajout des objets a la scene
-	//scene.add_objet(&sphere1);
+	scene.add_objet(&sphere1);
 	scene.add_objet(&sphere2);
 	scene.add_objet(&sphere3);
 	scene.add_objet(&sphere4);
@@ -69,14 +68,14 @@ int main()
 	double d = H / (2 * tan(fov * 3.1415 / 360.0)); // distance centre_camera -> plan_image
 	//// Caracs source
 	Vector light_Position(25.0, -25.0, 40.0); // Position source lumineuse
-	double light_Power = 3000000.0; // Intensité de la source lumineuse
+	double light_Power = 1000000.0; // Intensité de la source lumineuse
 	light_source main_light;
 	main_light.light_Pos = light_Position;
 	main_light.intensite = light_Power;
 	double source_radius = 5.0;
 	scene.add_light(&main_light);
 
-	Sphere sphere_source(light_Position, source_radius, Vector(255.0, 255.0, 255.0), 1.0, false, true, 1.0, light_Power);
+	Sphere sphere_source(light_Position, source_radius, Vector(255.0, 255.0, 255.0), 1.0, false, true, 1.0, light_Power, 100, 0.8);
 	scene.add_objet(&sphere_source);
 
 
@@ -93,7 +92,7 @@ int main()
 
 
 			//Nombre de rayons 
-			int nb_rayons = 2/2; // Divisé par deux car profondeur de champ => *2
+			int nb_rayons = 10; 
 			Vector RGB(0, 0, 0);
 			for (int ray_iter = 0; ray_iter < nb_rayons; ray_iter++)
 			{
@@ -114,18 +113,6 @@ int main()
 				U.normalize();
 				Ray ray_ij(camera_centre, U);
 				
-
-				// On determine si il y a intersection
-				intersection_details infos_intersection = scene.intersection(ray_ij);
-
-				// Si il y a une intersection
-				if (infos_intersection.intersection)
-				{
-
-					// Variable pour stocker la couleur du pixel
-					//Facteur indirect a adapter en focntion du nombre de rebond a cause de la multiplication des couleurs
-					RGB = RGB + scene.getDirect(ray_ij, infos_intersection, 1.0, 5, 5) + scene.getIndirect(infos_intersection, 1);
-				}
 
 				//Second rayon pour la profondeur de champ
 				double dist_focale = 55.0;

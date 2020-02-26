@@ -3,7 +3,7 @@
 
 
 //Constructeur de classe
-Triangle::Triangle(const Vector& ptA, const Vector& ptB, const Vector& ptC, const Vector& color, const double albed)
+Triangle::Triangle(const Vector& ptA, const Vector& ptB, const Vector& ptC, const Vector& color, const double albed, bool miror, bool transp, double ind_sphere, double intensity, int N_phong, double Rho_diff_phong)
 {
 	A = ptA;
 	B = ptB;
@@ -13,11 +13,12 @@ Triangle::Triangle(const Vector& ptA, const Vector& ptB, const Vector& ptC, cons
 	Vector AC = C + (-1.0) * A;
 	n = AB.prod_vect(AC);
 
-	albedo = albed;
-	miroir = false;
-	transparent = false;
-	indice_sphere = 1.0;
-	intensite = 0.0; //Pas de triangle émetteur
+	albedo = albed; miroir = miror;
+	transparent = transp;
+	indice_sphere = ind_sphere;
+	intensite = intensity;
+	n_phong = N_phong;
+	rho_diff_phong = Rho_diff_phong;
 }
 
 
@@ -40,11 +41,13 @@ intersection_details Triangle::intersect(Ray& rayon)
 			infos.inter_Color = couleur; // Couleur
 			infos.inter_Norm = n; // Normale
 			infos.albedo = albedo; // Albedo
-			infos.miroir = false;
-			infos.transparent = false;
-			infos.indice_sphere = 1.0;
-			infos.intensite = 0.0;
-			infos.rayon = 0.0;
+			infos.miroir = miroir;
+			infos.transparent = transparent;
+			infos.indice_sphere = indice_sphere;
+			infos.intensite = intensite;
+			infos.ray_dir = rayon.direction;
+			infos.n_phong = n_phong;
+			infos.rho_diff_phong = rho_diff_phong;
 
 		}
 		//Pt hors triangle
@@ -89,11 +92,13 @@ intersection_details Triangle::intersect(Ray& rayon)
 				infos.inter_Color = couleur; // Couleur
 				infos.inter_Norm = n; // Normale
 				infos.albedo = albedo; // Albedo
-				infos.miroir = false;
-				infos.transparent = false;
-				infos.indice_sphere = 1.0;
-				infos.intensite = 0.0;
-				infos.rayon = 0.0;
+				infos.miroir = miroir;
+				infos.transparent = transparent;
+				infos.indice_sphere = indice_sphere;
+				infos.intensite = intensite;
+				infos.ray_dir = rayon.direction;
+				infos.n_phong = n_phong;
+				infos.rho_diff_phong = rho_diff_phong;
 
 
 			}

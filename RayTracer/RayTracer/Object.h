@@ -9,12 +9,15 @@ struct  intersection_details
 	Vector inter_Pos; // Position monde de l'intersection
 	Vector inter_Norm; // Normale au point d'intersection
 	Vector inter_Color; // Couleur de l'objet
+	Vector ray_dir;
 	double albedo = 1.0; // Albedo
 	bool miroir = false; // Miroir
 	bool transparent = false; // Transparent
 	double indice_sphere = 1.0; // SI transparent, indice du milieu
 	double intensite = 0.0; // Si source
 	double rayon = 0.0; // SI transparent, indice du milieu
+	int n_phong=0;
+	double rho_diff_phong=0.0;
 };
 
 class Object
@@ -26,6 +29,8 @@ public:
 	bool transparent;
 	double indice_sphere;
 	double intensite=0.0;
+	int n_phong = 0;
+	double rho_diff_phong = 0.0;
 
 
 	virtual intersection_details intersect(Ray& rayon)

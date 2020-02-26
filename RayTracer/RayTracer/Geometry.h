@@ -407,46 +407,19 @@ public:
 		}
 		fclose(f);
 
-		//add_texture("Textures/Bump_2K.png");
-		//add_texture("Textures/Clouds_2K.png");
-		//add_texture("Textures/Diffuse_2K.png");
-		//add_texture("Textures/Night_lights_2K.png");
-		//add_texture("Textures/Ocean_Mask_2K.png");
+		
+	}
+
+	void add_texture(const char* filename) {
+
 		int width, height, channels;
 		stbi_set_flip_vertically_on_load(true);
-		unsigned char* image = stbi_load("Textures/Diffuse_2K.png",	&width,&height,	&channels,STBI_rgb);
+		unsigned char* image = stbi_load(filename, &width, &height, &channels, STBI_rgb);
 		textures.push_back(image);
 		w.push_back(width);
 		h.push_back(height);
 		std::cout << "Texture OK" << std::endl;
-		
 	}
-
-	/*
-	void add_texture(const char* filename) {
-
-		textures.resize(textures.size() + 1);
-		w.resize(w.size() + 1);
-		h.resize(h.size() + 1);
-
-		FILE* f;
-		f = fopen(filename, "rb");
-		unsigned char info[54];
-		fread(info, sizeof(unsigned char), 54, f); // read the 54-byte header
-
-		w[w.size() - 1] = *(int*)&info[18]; // extract image height and width from header
-		h[h.size() - 1] = *(int*)&info[22];
-
-		int size = 3 * w[w.size() - 1] * h[h.size() - 1];
-		textures[textures.size() - 1].resize(size); // allocate 3 bytes per pixel
-		fread(&textures[textures.size() - 1][0], sizeof(unsigned char), size, f); // read the rest of the data at once
-		fclose(f);
-
-		for (int i = 0; i < size; i += 3) {
-			std::swap(textures[textures.size() - 1][i], textures[textures.size() - 1][i + 2]);
-		}
-	}
-	*/
 
 	std::vector<double> compute_bounding_box(std::vector<int> tri_inds)
 	{
@@ -705,7 +678,9 @@ public:
 		for (int t = left_bound; t < right_bound; t++)
 		{
 			//creation du triangle
-			Triangle tri(vertices.at(indices.at(t).vtxi), vertices.at(indices.at(t).vtxj), vertices.at(indices.at(t).vtxk), Vector(200.0, 200.0, 200.0), 1.0);
+
+			//A MODIFIER POUR CHOISIR LA BRDF VOULUE
+			Triangle tri(vertices.at(indices.at(t).vtxi), vertices.at(indices.at(t).vtxj), vertices.at(indices.at(t).vtxk), Vector(200.0, 200.0, 200.0), 1.0,false, false, 1.0, 0.0, 0, 0.0);
 			
 			// Inversion de la normale si besoin !!!
 			tri.n = (-1.0) * tri.n;
@@ -740,62 +715,55 @@ public:
 				}
 			}
 
-			///////////
-			//Coords UV
-			///////////
-			int tri_ind = final_tri_ind;
-			// Les 3 sommets:
-			Vector A = vertices.at(indices.at(tri_ind).vtxi);
-			Vector B = vertices.at(indices.at(tri_ind).vtxj);
-			Vector C = vertices.at(indices.at(tri_ind).vtxk);
-			Triangle tri(A, B, C, Vector(0, 0, 0), 0.5);
-			// Les uv des 3 sommets:
-			Vector UV_A = uvs.at(indices.at(tri_ind).uvi);
-			Vector UV_B = uvs.at(indices.at(tri_ind).uvj);
-			Vector UV_C = uvs.at(indices.at(tri_ind).uvk);
-			// Les coords barycentriques du pt d'intersection:
-			Vector P = renvoi.inter_Pos;
-			// Calcul des aires
-			double ABC = 0.5 * ((B - A).prod_vect(C - A)).dot(tri.n);
-			double PBC = 0.5 * ((B - P).prod_vect(C - P)).dot(tri.n);
-			double APC = 0.5 * ((P - A).prod_vect(C - A)).dot(tri.n);
-			double ABP = 0.5 * ((B - A).prod_vect(P - A)).dot(tri.n);
-			// Coords barycentriques
-			double a = PBC / ABC;
-			double b = APC / ABC;
-			double c = ABP / ABC;
-			// Coords UV du pt d'intersection
-			Vector UV_P = a * UV_A + b * UV_B + c * UV_C;
-			Vector local_Norm = a * normals.at(indices.at(tri_ind).ni)+ b * normals.at(indices.at(tri_ind).nj)+ c * normals.at(indices.at(tri_ind).nk);
-			/*
-			std::cout << "------------- " << final_tri_ind << std::endl;
-			std::cout << "Aires : " << ABC << " " << PBC << " " << APC << " " << ABP << std::endl;
-			std::cout << "Barycentre : " << a << " " << b << " " << c << std::endl;
-			std::cout << "UV : " << UV_P.x << " " << UV_P.y << std::endl;
-			*/
-			unsigned char* img_tex = textures.at(0);
-			/*
-			std::cout << " -------------- " << w.at(0) * h.at(0) *3 << std::endl;
-			std::cout << (int)(UV_P.y*h.at(0) * w.at(0) * 3 + UV_P.x*w.at(0) * 3)<< std::endl;
-			std::cout << (int)(UV_P.y * h.at(0) * w.at(0) * 3 + UV_P.x * w.at(0) * 3) +1<< std::endl;
-			std::cout << (int)(UV_P.y * h.at(0) * w.at(0) * 3 + UV_P.x * w.at(0) * 3) +2<< std::endl;
-			*/
+			/////////////
+			// TEXTURE //
+			/////////////
+			
+			//On ne gere que le cas avec 1 texture
+			if (textures.size() == 1)
+			{
+				int tri_ind = final_tri_ind;
+				// Les 3 sommets:
+				Vector A = vertices.at(indices.at(tri_ind).vtxi);
+				Vector B = vertices.at(indices.at(tri_ind).vtxj);
+				Vector C = vertices.at(indices.at(tri_ind).vtxk);
+				Triangle tri(A, B, C, Vector(0, 0, 0), 0.5, false, false, 1.0, 0.0, 0, 0.0);
+				// Les uv des 3 sommets:
+				Vector UV_A = uvs.at(indices.at(tri_ind).uvi);
+				Vector UV_B = uvs.at(indices.at(tri_ind).uvj);
+				Vector UV_C = uvs.at(indices.at(tri_ind).uvk);
+				// Les coords barycentriques du pt d'intersection:
+				Vector P = renvoi.inter_Pos;
+				// Calcul des aires
+				double ABC = 0.5 * ((B - A).prod_vect(C - A)).dot(tri.n);
+				double PBC = 0.5 * ((B - P).prod_vect(C - P)).dot(tri.n);
+				double APC = 0.5 * ((P - A).prod_vect(C - A)).dot(tri.n);
+				double ABP = 0.5 * ((B - A).prod_vect(P - A)).dot(tri.n);
+				// Coords barycentriques
+				double a = PBC / ABC;
+				double b = APC / ABC;
+				double c = ABP / ABC;
+				// Coords UV du pt d'intersection
+				Vector UV_P = a * UV_A + b * UV_B + c * UV_C;
+				Vector local_Norm = a * normals.at(indices.at(tri_ind).ni) + b * normals.at(indices.at(tri_ind).nj) + c * normals.at(indices.at(tri_ind).nk);
 
-			//std::cout << h.at(0) << " " << w.at(0) << " " << sizeof(img_tex) <<  std::endl;
-			//std::cout << UV_P.x << " " << UV_P.y << std::endl;
+				//Cas où la texture se répète
+				UV_P.x = UV_P.x - (int)(UV_P.x);
+				UV_P.y = UV_P.y - (int)(UV_P.y);
+				UV_P.z = UV_P.z - (int)(UV_P.z);
 
-			auto pixel_R = (int)img_tex[(int)(UV_P.y * h.at(0)) * w.at(0) * 3 + (int)(UV_P.x * w.at(0)) * 3];
-			auto pixel_V = (int)img_tex[(int)(UV_P.y * h.at(0)) * w.at(0) * 3 + (int)(UV_P.x * w.at(0))*3 +1];
-			auto pixel_B = (int)img_tex[(int)(UV_P.y * h.at(0)) * w.at(0) * 3 + (int)(UV_P.x * w.at(0))*3 +2];
+				//Image texture
+				unsigned char* img_tex = textures.at(0);
 
-			renvoi.inter_Color = Vector((double)pixel_R, (double)pixel_V, (double)pixel_B);
-			//std::cout << pixel_R << " " << pixel_V << " " << pixel_B << std::endl;
-			//std::cout << " --- " << std::endl;
-			renvoi.inter_Color = Vector((double)pixel_R, (double)pixel_V, (double)pixel_B);
-			renvoi.inter_Norm = local_Norm;
-			//renvoi.inter_Color = Vector(0, 100, 100);
+				// Valeurs pixels
+				auto pixel_R = (int)img_tex[(int)(UV_P.y * h.at(0)) * w.at(0) * 3 + (int)(UV_P.x * w.at(0)) * 3];
+				auto pixel_V = (int)img_tex[(int)(UV_P.y * h.at(0)) * w.at(0) * 3 + (int)(UV_P.x * w.at(0)) * 3 + 1];
+				auto pixel_B = (int)img_tex[(int)(UV_P.y * h.at(0)) * w.at(0) * 3 + (int)(UV_P.x * w.at(0)) * 3 + 2];
 
-			//std::cout << renvoi.inter_Color.x << " " << renvoi.inter_Color.y << " " << renvoi.inter_Color.z << std::endl;
+				//Modification couleur et normale renvoyées
+				renvoi.inter_Color = Vector((double)pixel_R, (double)pixel_V, (double)pixel_B);
+				renvoi.inter_Norm = local_Norm;
+			}
 
 			return renvoi;
 		}
